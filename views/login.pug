@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1= title
+
+  - if (message)
+    h2= message
+
+  form(method="post")
+      table
+        tr
+          th Your identifier (or email)
+          td
+              input(type="text" name="ident")
+        tr
+            th Password
+            td
+                input(type="password" name="pwd")
+        tr
+            th Ready?
+            td
+                input(type="submit" value="Yep, let's go")
+

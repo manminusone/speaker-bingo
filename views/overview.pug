@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1 Overview
+
+  p Your uri = #{doc.uri}
+  - if (bingos.length == 0)
+    p You have no bingo sessions saved. 
+      a(href='/bingo/new') Create one?
+  - else
+    p Your bingo sessions:
+    - for (var i = 0; i < bingos.length; ++i)
+      p
+        a(href="/bingo/edit/"+i) #{bingos[i].title}
+    p Or, if you want to create a new one, 
+      a(href='/bingo/new') click here

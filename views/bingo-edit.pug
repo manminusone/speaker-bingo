@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1 Edit Bingo Session
+
+  h2= message
+  form(method="post" action="/bingo/save")
+    input(type="hidden" name="bingoId" value=bingoId)
+    p Give me a title: 
+      input(type="text" name="bingoTitle" value=bingoTitle)
+    p Just start typing your items in the text box below.
+    p
+      textarea(name="bingos" cols="40" rows="20")
+        = choices
+
+    p And when you're ready,
+      input(type="submit" value="click to continue")
