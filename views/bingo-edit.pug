@@ -10,8 +10,11 @@ block content
       input(type="text" name="bingoTitle" value=bingoTitle)
     p Just start typing your items in the text box below.
     p
-      textarea(name="bingos" cols="40" rows="20")
+      textarea(name="choices" cols="40" rows="20")
         = choices
 
     p And when you're ready,
       input(type="submit" value="click to continue")
+
+    p ...or 
+      a(href="/overview") back to the overview

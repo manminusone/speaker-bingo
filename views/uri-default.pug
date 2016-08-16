@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1 Document
+
+  - if (loggedIn)
+    p you are currently logged in, but you can't edit this bingo item here. 
+      a(href="/overview") Go to the overview page.
+  - else
+    p Nothing going on here right now.

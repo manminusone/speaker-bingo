@@ -1,7 +1,6 @@
 
 module.exports = (options) => {
 	var mongoose = options.mongoose;
-	console.log(mongoose);
 	var bcrypt = require('bcrypt');
 
 	var Schema = mongoose.Schema;
@@ -10,7 +9,9 @@ module.exports = (options) => {
 		uri: String,
 		createDate: { type: Date, default: Date.now },
 		contactEmail: String,
-		hash: String
+		hash: String,
+
+		testBingoId: Schema.Types.ObjectId
 	}),
 		Presentation = mongoose.model('Presentation', PresentationSchema);
 
@@ -29,48 +30,55 @@ module.exports = (options) => {
 		Card = mongoose.model('Card',CardSchema);
 
 	return {
-		newPresentation: function(thisUri,thisEmail,thisPwd) {
-			bcrypt.hash(thisPwd, 10, function(err, hash) {
-				if (!err) {
-					var p = new Presentation({ uri: thisUri, contactEmail: thisEmail, hash: hash });
-					p.save();
-					return p;
-				} else {
-					return null;
-				}
-			});
-		},
-		newBingo: function(presId) {
-			var foo = new Bingo({ presentationId: presId });
-			return foo;
-		},
-		findPresentation: function(thisId,thisPwd,cb) {
-			var errDoc = { error: 'Document not found '};
-
-			var pCallback = function(err,doc) {
-				console.log('- findOne: err = ' + err  + ', doc = ' + doc);
-				if (! err) {
-					console.log('-- checking bcrypt');
-					bcrypt.compare(thisPwd,doc.hash,function(err,res) {
-						if (res)
-							cb(doc);
+		presentation: {
+			new: function() { return new Presentation(); },
+			findById: function(id,cb) { Presentation.findById(id, cb); },
+			findByUri: function(uri,passwd,cb) { Presentation.findOne({ uri: uri }, function(err,result) {
+				var errorDoc = { error: "Presentation not found" };
+				if (result)
+					bcrypt.compare(passwd, result.hash, function(err,res) {
+						if (res) 
+							cb(result);
 						else
-							cb(errDoc);
+							cb(errorDoc);
 					});
+				else
+					cb(errorDoc);
+			}); },
+			findByUriNoPwd: function(uri,cb) { Presentation.findOne({ uri: uri }, cb); },
+			save: function(doc,cb) { 
+				if (doc._id) {
+					var tmp = doc;
+					delete tmp._id;
+					console.log('updating');
+					Presentation.update({ id: Schema.Types.ObjectId(doc._id) }, tmp, cb);
+				} else  if (doc.pwd) {
+					bcrypt.hash(doc.pwd,10,function(err,result) {
+						if (!err && result) {
+							var tmp = new Presentation({ uri: doc.uri, contactEmail: doc.contactEmail, hash: result });
+							console.log('saving');
+							tmp.save(cb);
+						}
+					})
 				} else
-					cb(errDoc);
-			};
-
-			Presentation.findOne({ uri: thisId }, pCallback);
+					cb('Not enough information to save');
+			}
 		},
-		findBingos: function(presId, cb) {
-			Bingo.find({ presentationId: presId }, function(err,docs) {
-				cb(docs);
-			});
-		},
-		saveBingo: function(doc,cb) {
-			var docid = doc._id;
-			Bingo.findByIdAndUpdate(docid,  { presentationId: doc.presentationId, title: doc.title, createDate: doc.createDate, choices: doc.choices }, cb);
+		bingo: {
+			new: function() { return new Bingo(); },
+			findById: function(id,cb) { Bingo.findById(id, cb); },
+			findByPresentationId: function(id,cb) { Bingo.find({ presentationId: id }, cb); },
+			findByIds: function(idArray,cb) { Bingo.find({ _id: { $in: idArray }}, cb); },
+			save: function(doc,cb) {
+				if (doc._id) {
+					var tmp = doc;
+					delete tmp._id;
+					Bingo.update({ id: Schema.Types.ObjectId(doc._id) }, tmp, cb);
+				} else {
+					var tmp = new Bingo(doc);
+					tmp.save(cb);
+				}
+			}
 		}
 	};
 };
