@@ -15,26 +15,26 @@ var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
 var db = require('./routes/db')({ 'mongoose': mongoose });
-var users = require('./routes/users')({ 'db': db });
-var routes = require('./routes/index')({ 'db': db });
+var adminUsers = require('./routes/users')({ 'db': db });
+var adminRoutes = require('./routes/index')({ 'db': db });
+var uriRoutes = require('./routes/uri')({ 'db': db });
+var vhost = require('vhost');
 
-
-
-var app = express();
+var app = express(), adminApp = express(), uriApp = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+adminApp.set('views', path.join(__dirname, 'views/admin'));
+adminApp.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+adminApp.use(logger('dev'));
+adminApp.use(bodyParser.json());
+adminApp.use(bodyParser.urlencoded({ extended: false }));
+adminApp.use(cookieParser());
+adminApp.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
+adminApp.use(session({
   secret: 'fstrCokeCt',
   store: new mongoStore({
     mongooseConnection: mongoose.connection
@@ -42,11 +42,11 @@ app.use(session({
 }));
 
 
-app.use('/', routes);
-app.use('/users', users);
+adminApp.use('/', adminRoutes);
+adminApp.use('/users', adminUsers);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+adminApp.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -56,8 +56,8 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
+if (adminApp.get('env') === 'development') {
+  adminApp.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -68,7 +68,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+adminApp.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -76,5 +76,61 @@ app.use(function(err, req, res, next) {
   });
 });
 
+app.use(vhost(config.vhost.adminDomain, adminApp));
+
+
+// view engine setup
+uriApp.set('views', path.join(__dirname, 'views/uri'));
+uriApp.set('view engine', 'pug');
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+uriApp.use(logger('dev'));
+uriApp.use(bodyParser.json());
+uriApp.use(bodyParser.urlencoded({ extended: false }));
+uriApp.use(cookieParser());
+uriApp.use(express.static(path.join(__dirname, 'public')));
+
+uriApp.use(session({
+  secret: 'otherSecret',
+  store: new mongoStore({
+    mongooseConnection: mongoose.connection
+  })
+}));
+
+
+uriApp.use('/', uriRoutes);
+
+// catch 404 and forward to error handler
+uriApp.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if (uriApp.get('env') === 'development') {
+  uriApp.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+// production error handler
+// no stacktraces leaked to user
+uriApp.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
+});
+app.use(vhost(config.vhost.uriDomain, uriApp));
 
 module.exports = app;

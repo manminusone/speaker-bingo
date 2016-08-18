@@ -50,13 +50,11 @@ module.exports = (options) => {
 				if (doc._id) {
 					var tmp = doc;
 					delete tmp._id;
-					console.log('updating');
 					Presentation.update({ id: Schema.Types.ObjectId(doc._id) }, tmp, cb);
 				} else  if (doc.pwd) {
 					bcrypt.hash(doc.pwd,10,function(err,result) {
 						if (!err && result) {
 							var tmp = new Presentation({ uri: doc.uri, contactEmail: doc.contactEmail, hash: result });
-							console.log('saving');
 							tmp.save(cb);
 						}
 					})
@@ -70,10 +68,16 @@ module.exports = (options) => {
 			findByPresentationId: function(id,cb) { Bingo.find({ presentationId: id }, cb); },
 			findByIds: function(idArray,cb) { Bingo.find({ _id: { $in: idArray }}, cb); },
 			save: function(doc,cb) {
-				if (doc._id) {
-					var tmp = doc;
-					delete tmp._id;
-					Bingo.update({ id: Schema.Types.ObjectId(doc._id) }, tmp, cb);
+				if (doc.id) {
+					Bingo.findById(Schema.Types.Object(doc.id), function(err,foundDoc) {
+						if (err)
+							cb({ error: err });
+						else {
+							if (doc.title) foundDoc.title = doc.title;
+							if (doc.choices) foundDoc.choices = doc.choices;
+							foundDoc.save(cb);
+						}
+					});
 				} else {
 					var tmp = new Bingo(doc);
 					tmp.save(cb);

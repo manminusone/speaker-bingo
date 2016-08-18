@@ -33,8 +33,12 @@ module.exports = (options) => {
 	router.get('/login', function(req,res,next) {
 		res.render('login', { title: 'Login', message: '' });
 	});
+	router.get('/logout', function(req,res,next) {
+		req.session.destroy(function() { res.redirect('/'); });
+	})
 	router.post('/login', function(req,res,next) {
 		db.presentation.findByUri(req.body.uri,req.body.pwd, function(doc) {
+			console.log('doc = '+JSON.stringify(doc));
 			if (doc.error)
 				res.render('login', { title: 'Login', message: doc.error });				
 			else {
@@ -77,27 +81,30 @@ module.exports = (options) => {
 	});
 
 	router.post('/bingo/save', function(req,res,next) {
-		if (req.session.presentationId) {
+		if (req.session.presentationId) { // logged in
+			console.log('yay, logged in');
 			var choices = req.body.choices.split(/[\n\r]+/);
 			var b = null;
 			if (req.body.bingoId) {
+				console.log('saving existing');
 				db.bingo.save({
-					_id:  req.body.bingoId,
+					id: req.body.bingoId,
 					title: req.body.bingoTitle,
 					choices: choices
-				}, function(err) {
+				}, function(err,raw) {
 					console.log('at this point, title = ' + req.body.bingoTitle);
 					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: req.body.bingoId, bingoTitle: req.body.bingoTitle, choices: choices.join("\n") });
 				});
 			} else {
+				console.log('no existing id, creating new');
 				db.bingo.save({
 					presentationId: req.session.presentationId,
 					title: req.body.bingoTitle,
 					choices: choices
 				}, function(err, newdoc) {
 					req.session.bingoId.push(newdoc._id);
-					console.log('at this point (2), title = ' + req.body.bingoTitle);
-					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: req.body.bingoId, bingoTitle: req.body.bingoTitle, choices: choices.join("\n") });
+					console.log('at this point (2), title = ' + newdoc.title);
+					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices.join("\n") });
 				});
 			}
 		} else
