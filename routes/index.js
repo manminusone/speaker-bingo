@@ -1,4 +1,6 @@
 
+// admin site routes
+
 module.exports = (options) => {
 
 	var express = require('express');
@@ -114,6 +116,7 @@ module.exports = (options) => {
 	router.get('/bingo/edit/:num', function(req,res,next) {
 		if (req.session.presentationId) {
 			if (req.params.num >= 0 && req.params.num < req.session.bingoId.length) {
+				console.log('looking for ' + req.session.bingoId[req.params.num]);
 				db.bingo.findById(req.session.bingoId[req.params.num], function(err,thisbingo) {
 					if (! err && thisbingo) {
 						res.render('bingo-edit', { bingoId: thisbingo._id, bingoTitle: thisbingo.title, choices: thisbingo.choices.join("\n") });
@@ -146,20 +149,5 @@ module.exports = (options) => {
 			res.redirect('/login');
 	});
 
-
-	// uris!
-
-	router.get('/:uid', function(req,res,next) {
-		var uid = req.params.uid;
-		db.presentation.findByUriNoPwd(function(err,p) {
-			if (err)
-				res.redirect('/');
-
-			if (p.testBingoId) {
-				
-			} else
-				res.render('uri-default', { loggedIn: (p._id == req.session.presentationId) });
-		});
-	})
 	return router;
 };

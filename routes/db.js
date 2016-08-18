@@ -64,12 +64,13 @@ module.exports = (options) => {
 		},
 		bingo: {
 			new: function() { return new Bingo(); },
-			findById: function(id,cb) { Bingo.findById(id, cb); },
+			findById: function(id,cb) { console.log('-- id = ' + id); Bingo.findById(id, cb); },
 			findByPresentationId: function(id,cb) { Bingo.find({ presentationId: id }, cb); },
 			findByIds: function(idArray,cb) { Bingo.find({ _id: { $in: idArray }}, cb); },
 			save: function(doc,cb) {
 				if (doc.id) {
-					Bingo.findById(Schema.Types.Object(doc.id), function(err,foundDoc) {
+					Bingo.findById(doc.id, function(err,foundDoc) {
+						console.log('-- err = ' + err + ', foundDoc = ' + foundDoc);
 						if (err)
 							cb({ error: err });
 						else {

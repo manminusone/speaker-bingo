@@ -1,8 +1,25 @@
+ @import 'https://fonts.googleapis.com/css?family=Lobster';
+
 body {
-  padding: 50px;
+  padding: 0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
 }
+
+/* mobile first! */
+.mobileAdmin { display: inline; }
+.screenAdmin { display: none; }
+
+
+@media (min-width: 800px) {
+
+	.mobileAdmin { display: none; }
+	.screenAdmin { display: inline; }
+
+}
+
+.navbar-brand { font-family: Lobster,sans-serif; font-size: 2em; }
+.jumbotron h1 { font-family: Lobster,sans-serif; }

@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h1= uri
+  h2= title
+
+  div(class="bingoTable")
+    div(class="bingoRow")
+      div(class="bingoHeader") B
+      div(class="bingoHeader") I
+      div(class="bingoHeader") N
+      div(class="bingoHeader") G
+      div(class="bingoHeader") O
+    - for (var row = 1; row <= 5; ++row) {
+      div(class="bingoRow")
+      - for (var col = 1; col <= 5; ++col) {
+        - if (row == 3 && col == 3)
+          div(class="bingoCell") FREE SPACE
+        - else {
+          - var item = choices.shift();
+          div(class="bingoCell")= item
+        - }
+      - }
+    - }
