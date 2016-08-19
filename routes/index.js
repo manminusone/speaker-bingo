@@ -149,5 +149,11 @@ module.exports = (options) => {
 			res.redirect('/login');
 	});
 
+
+//	static pages
+	router.get('/static/about', function(req,res,next) {
+		res.render('about');
+	});
+
 	return router;
 };

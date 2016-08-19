@@ -12,6 +12,8 @@ html
     link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous")
 
+    link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css", rel="stylesheet", integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1", crossorigin="anonymous")
+
     link(rel='stylesheet' href='/stylesheets/style.css')
 
   body
@@ -26,15 +28,24 @@ html
           a(class="navbar-brand" href="/") speaker bingo
 
         div(class="collapse navbar-collapse" id="mainmenu-1")
-          ul(class="nav navbar-nav")
+          ul(class="nav navbar-nav navbar-right")
             li(class="active")
-              a(href="#") Home
+              a(href="/") Home
             li
-              a(href="#") About
+              a(href="/static/about") About
             li
-              a(href="#") TOS
+              a(href="/static/tos") TOS
             li
-              a(href="#") Contact
+              a(href="/static/contact") Contact
 
 
     block content
+
+    div(class="container-fluid my-footer")
+      p
+        i(class="fa fa-creative-commons")
+        | This site is licensed under a 
+        a(rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/") Creative Commons Attribution-ShareAlike 4.0 International License
+        | .
+      p This site is one of many projects created by Man Minus One. For further information please visit 
+        a(href="http://www.manminusone.com/") manminusone.com.

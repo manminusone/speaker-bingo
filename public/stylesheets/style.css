@@ -6,7 +6,7 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #666;
 }
 
 /* mobile first! */
@@ -23,3 +23,5 @@ a {
 
 .navbar-brand { font-family: Lobster,sans-serif; font-size: 2em; }
 .jumbotron h1 { font-family: Lobster,sans-serif; }
+
+.my-footer { background: #333; color: #fff; padding: 8px; }
