@@ -40,6 +40,8 @@ adminApp.use(express.static(path.join(__dirname, 'public')));
 
 adminApp.use(session({
   secret: 'fstrCokeCt',
+  resave: false,
+  saveUninitialized: false,
   store: new mongoStore({
     mongooseConnection: mongoose.connection
   })
@@ -97,6 +99,8 @@ uriApp.use(express.static(path.join(__dirname, 'public')));
 
 uriApp.use(session({
   secret: 'otherSecret',
+  resave: false,
+  saveUninitialized: false,
   store: new mongoStore({
     mongooseConnection: mongoose.connection
   })
