@@ -10,3 +10,17 @@ exports.vhost = {
 	"adminDomain": "admin.speaker-bingo.local",
 	"uriDomain": "speaker-bingo.local"
 };
+
+// https://github.com/RGBboy/express-mailer
+exports.contactAddress = 'your@address.here';
+exports.mailer = {
+	from: 'from-email@email.com',
+	host: 'smtp.gmail.com',
+	secureConnection: true,
+	port: 465,
+	transportMethod: 'SMTP',
+	auth: {
+		user: 'your-address-here@gmail.com',
+		pass: 'p@ssw0rd'
+	}
+};

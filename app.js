@@ -17,11 +17,14 @@ var mongoStore = require('connect-mongo')(session);
 
 var db = require('./routes/db')({ 'mongoose': mongoose });
 var adminUsers = require('./routes/users')({ 'db': db });
-var adminRoutes = require('./routes/index')({ 'db': db });
-var uriRoutes = require('./routes/uri')({ 'db': db });
+var adminRoutes = require('./routes/index')({ 'db': db, 'config': config });
+var uriRoutes = require('./routes/uri')({ 'db': db, 'config': config });
 var vhost = require('vhost');
 
 var app = express(), adminApp = express(), uriApp = express();
+var mailer = require('express-mailer');
+mailer.extend(app, config.mailer);
+
 
 // view engine setup
 adminApp.set('views', path.join(__dirname, 'views/admin'));

@@ -1,8 +1,8 @@
- @import 'https://fonts.googleapis.com/css?family=Lobster';
+ @import 'https://fonts.googleapis.com/css?family=Lobster|Open+Sans';
 
 body {
   padding: 0px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px 'Open Sans',"Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
@@ -21,7 +21,10 @@ a {
 
 }
 
-.navbar-brand { font-family: Lobster,sans-serif; font-size: 2em; }
-.jumbotron h1 { font-family: Lobster,sans-serif; }
+.navbar-brand { font-family: Lobster,cursive; font-size: 2em; }
+.jumbotron h1 { font-family: Lobster,cursive; }
 
 .my-footer { background: #333; color: #fff; padding: 8px; }
+
+div.container h1 { font-family: Lobster,cursive; font-size: 3.5em; }
+.niceTable th { padding: 4px; font-size: 1.5em; text-align: right; }

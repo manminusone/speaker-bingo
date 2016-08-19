@@ -6,6 +6,7 @@ module.exports = (options) => {
 	var express = require('express');
 	var router = express.Router();
 	var db = options.db;
+	var config = options.config;
 
 	/* GET home page. */
 	router.get('/', function(req, res, next) {
@@ -152,8 +153,27 @@ module.exports = (options) => {
 
 //	static pages
 	router.get('/static/about', function(req,res,next) {
-		res.render('about');
+		res.render('about', { title: 'About this site', tabChoice: 'about'});
 	});
+	router.get('/static/tos', function(req,res,next) {
+		res.render('tos', { title: 'Terms of service', tabChoice: 'tos'});
+	});
+	router.get('/static/contact', function(req,res,next) {
+		res.render('contact', { title: 'Contact us', tabChoice: 'contact'});
+	});
+	router.post('/static/contact', function(req,res,next) {
+		res.mailer.send('email-contact', {
+			to: config.contactAddress,
+			subject: '[Speaker Bingo] ' + req.body.subject,
+			name: req.body.name,
+			email: req.body.email,
+			rawSubject: req.body.subject,
+			message: req.body.message
+		}, function(err) {
+			if (err) { console.log('err when sending email: ' + err); }
+			res.render('contact-thanks', { title: 'Contact us', tabChoice: 'contact' });
+		});
+	})
 
 	return router;
 };

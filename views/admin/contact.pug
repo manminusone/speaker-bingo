@@ -1,0 +1,40 @@
+extends layout
+
+block content
+  div(class="container")
+    h1 Contact us
+    i(class="fa fa-envelope fa-5x fa-pull-right")
+    p The code for this site is 
+      a(href="https://github.com/manminusone/speaker-bingo") available on Github,
+      |  so technical questions and bug reports are best addressed on that site. 
+
+    p If you have further questions or comments about this site, please use the form below to get in touch.
+
+    form(method="post")
+      table(class="niceTable")
+        tr
+          th Your name
+          td 
+            input(type="text" name="name")
+        tr
+          th Contact email address
+          td
+            input(type="text" name="email")
+        tr
+          th What's this about?
+          td
+            select(name="subject")
+              option(value="") choose one
+              option Technical question about the site
+              option Report of objectionable content on the site
+              option Professional inquiry
+              option Just wanted to say hi
+              option None of the above
+        tr
+          th Your message
+          td
+            textarea(name="message" rows="10" cols="40")
+        tr
+          th When you're ready:
+          td
+            button(id="smailButton" name="smailButton") send message

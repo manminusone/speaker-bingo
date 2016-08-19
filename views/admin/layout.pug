@@ -28,24 +28,61 @@ html
           a(class="navbar-brand" href="/") speaker bingo
 
         div(class="collapse navbar-collapse" id="mainmenu-1")
+          - var homeClass = '', aboutClass = '', tosClass = '', contactClass = '';
+          - if (tabChoice == 'about') aboutClass = 'active';
+          - else if (tabChoice == 'tos') tosClass = 'active';
+          - else if (tabChoice == 'contact') contactClass = 'active';
+          - else homeClass = 'active';
           ul(class="nav navbar-nav navbar-right")
-            li(class="active")
+            li(class=homeClass)
               a(href="/") Home
-            li
+            li(class=aboutClass)
               a(href="/static/about") About
-            li
+            li(class=tosClass)
               a(href="/static/tos") TOS
-            li
+            li(class=contactClass)
               a(href="/static/contact") Contact
 
 
     block content
 
+    p &nbsp;
     div(class="container-fluid my-footer")
-      p
-        i(class="fa fa-creative-commons")
-        | This site is licensed under a 
-        a(rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/") Creative Commons Attribution-ShareAlike 4.0 International License
-        | .
-      p This site is one of many projects created by Man Minus One. For further information please visit 
-        a(href="http://www.manminusone.com/") manminusone.com.
+      div(class="col-md-4")
+        p 
+          a(href="/") Home
+          br
+          a(href="/static/about") About 
+          br
+          a(href="/static/tos") Terms of Service
+          br
+          a(href="/static/contact") Contact us
+      div(class="col-md-4")
+        p Social media links
+        p
+          a(href="https://twitter.com/manminusone" title="Twitter")
+            i(class="fa fa-twitter-square fa-3x")
+          | 
+          a(href="https://facebook.com/therealjamesallenspach" title="Facebook")
+            i(class="fa fa-facebook-square fa-3x")
+          | 
+          a(href="https://flickr.com/jima" title="Flickr")
+            i(class="fa fa-flickr fa-3x")
+          | 
+          a(href="https://instagram.com/manminusone" title="Instagram")
+            i(class="fa fa-instagram fa-3x")
+          | 
+          a(href="https://github.com/manminusone" title="Github")
+            i(class="fa fa-github-square fa-3x")
+          | 
+          a(href="https://plus.google.com/111911850711596746102" title="Google+")
+            i(class="fa fa-google-plus-square fa-3x")
+
+      div(class="col-md-4")
+        p
+          i(class="fa fa-creative-commons")
+          |  This site is licensed under a 
+          a(rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/") Creative Commons Attribution-ShareAlike 4.0 International License
+          | .
+        p This site is one of many projects created by Man Minus One. For further information please visit 
+          a(href="http://www.manminusone.com/") manminusone.com.
