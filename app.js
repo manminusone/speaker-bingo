@@ -19,6 +19,7 @@ var db = require('./routes/db')({ 'mongoose': mongoose });
 var adminUsers = require('./routes/users')({ 'db': db });
 var adminRoutes = require('./routes/index')({ 'db': db, 'config': config });
 var uriRoutes = require('./routes/uri')({ 'db': db, 'config': config });
+var apiRoutes = require('./routes/api')({ 'db': db, 'config': config });
 var vhost = require('vhost');
 
 var app = express(), adminApp = express(), uriApp = express();
@@ -50,6 +51,7 @@ adminApp.use(session({
 
 adminApp.use('/', adminRoutes);
 adminApp.use('/users', adminUsers);
+adminApp.use('/api', apiRoutes);
 
 // catch 404 and forward to error handler
 adminApp.use(function(req, res, next) {

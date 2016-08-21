@@ -1,26 +1,31 @@
 extends layout
 
 block content
-  h1= title
+  script(src="/javascripts/signup.js")
+  div(class="container")
+    i(class="fa fa-user fa-5x fa-pull-right")
+    h1 Sign up
 
-  h2 Want to sign up? Course you do!
-
-  form(method="post")
-      table
-          tr
-              th http://speaker.bingo/
-              td
-                  input(type="text" name="uri")
-          tr
-              th Your email
-              td
-                  input(type="text" name="email")
-          tr
-              th Password
-              td
-                  input(type="password" name="pwd")
-          tr
-              th Ready?
-              td
-                  input(type="submit" value="Yep, let's go")
+    p Paragraph explaining what you're about to do! 
+    p= message
+    form(method="post")
+        table
+            tr
+                th #{domain}/
+                td
+                    input(type="text" id="uri" name="uri" value=uri) 
+                    | 
+                    span(id="indicator" name="indicator" class="label label-default") Waiting
+            tr
+                th Your email
+                td
+                    input(type="text" id="email" name="email" value=email)
+            tr
+                th Password
+                td
+                    input(type="password" id="pwd" name="pwd")
+            tr
+                th Ready?
+                td
+                    input(type="submit" value="Yep, let's go")
 

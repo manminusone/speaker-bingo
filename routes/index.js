@@ -16,20 +16,24 @@ module.exports = (options) => {
 
 	// sign in
 	router.get('/signup', function(req,res,next) {
-		res.render('signup', { message: '' });
+		res.render('signup', { message: '', domain: config.vhost.uriDomain });
 	});
 	router.post('/signup', function(req,res,next) {
-
-		db.presentation.save({ uri: req.body.uri, contactEmail: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
-			console.log('save()');
-			if (err) {
-				res.render('signup', { message: err });
-			} else {
-				req.session.presentationId = product._id;
-				req.session.bingoId = Array();
-				res.redirect('/overview');
-			}
-		});
+		db.presentation.findByUriNoPwd(req.body.uri, function(err,doc) {
+			if (doc)
+				res.render('signup', { message: 'URI already exists', domain: config.vhost.uriDomain, uri: req.body.uri, email: req.body.email });
+			else
+				db.presentation.save({ uri: req.body.uri, contactEmail: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
+					console.log('save. err = ' + err + ', num affected = ' + numAffected);
+					if (err) {
+						res.render('signup', { message: err });
+					} else {
+						req.session.presentationId = product._id;
+						req.session.bingoId = Array();
+						res.redirect('/overview');
+					}
+				});
+		})
 	});
 
 	// log in
@@ -63,7 +67,7 @@ module.exports = (options) => {
 				if (! err && doc) {
 					db.bingo.findByIds(req.session.bingoId, function(err,bingos) {
 						if (! err && bingos)
-							res.render('overview', { presentation: doc, bingos: bingos });
+							res.render('overview', { title: 'OVerview', presentation: doc, bingos: bingos });
 						else 
 							res.redirect('/login');
 					});
@@ -78,7 +82,7 @@ module.exports = (options) => {
 	// bingo routes
 	router.get('/bingo/new', function(req,res,next) {
 		if (req.session.presentationId)
-			res.render('bingo-new', { });
+			res.render('bingo-new', { title: 'New Bingo Session'});
 		else
 			res.redirect('/login');	
 	});
