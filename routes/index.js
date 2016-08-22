@@ -67,7 +67,7 @@ module.exports = (options) => {
 				if (! err && doc) {
 					db.bingo.findByIds(req.session.bingoId, function(err,bingos) {
 						if (! err && bingos)
-							res.render('overview', { title: 'OVerview', presentation: doc, bingos: bingos });
+							res.render('overview', { title: 'Overview', presentation: doc, bingos: bingos });
 						else 
 							res.redirect('/login');
 					});
@@ -90,7 +90,9 @@ module.exports = (options) => {
 	router.post('/bingo/save', function(req,res,next) {
 		if (req.session.presentationId) { // logged in
 			console.log('yay, logged in');
-			var choices = req.body.choices.split(/[\n\r]+/);
+			console.log('-- choices = ' + req.body.choices);
+			var choices = JSON.parse(req.body.choices);
+			console.log('-- parsed choices = ' + choices);
 			var b = null;
 			if (req.body.bingoId) {
 				console.log('saving existing');
@@ -100,7 +102,7 @@ module.exports = (options) => {
 					choices: choices
 				}, function(err,raw) {
 					console.log('at this point, title = ' + req.body.bingoTitle);
-					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: req.body.bingoId, bingoTitle: req.body.bingoTitle, choices: choices.join("\n") });
+					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: req.body.bingoId, bingoTitle: req.body.bingoTitle, choices: choices });
 				});
 			} else {
 				console.log('no existing id, creating new');
@@ -111,7 +113,7 @@ module.exports = (options) => {
 				}, function(err, newdoc) {
 					req.session.bingoId.push(newdoc._id);
 					console.log('at this point (2), title = ' + newdoc.title);
-					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices.join("\n") });
+					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices });
 				});
 			}
 		} else
@@ -124,7 +126,7 @@ module.exports = (options) => {
 				console.log('looking for ' + req.session.bingoId[req.params.num]);
 				db.bingo.findById(req.session.bingoId[req.params.num], function(err,thisbingo) {
 					if (! err && thisbingo) {
-						res.render('bingo-edit', { bingoId: thisbingo._id, bingoTitle: thisbingo.title, choices: thisbingo.choices.join("\n") });
+						res.render('bingo-edit', { bingoId: thisbingo._id, bingoTitle: thisbingo.title, choices: thisbingo.choices });
 					} else
 					res.redirect('/overview');
 				})

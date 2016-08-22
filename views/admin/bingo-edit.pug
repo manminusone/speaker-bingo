@@ -1,20 +1,33 @@
 extends layout
 
 block content
-  h1 Edit Bingo Session
+  script(src="/javascripts/bingo-entry.js")
+  div(class="container")
+    a(class="fa fa-file fa-5x fa-pull-right")
+    h1 Edit Bingo Session
 
-  h2= message
-  form(method="post" action="/bingo/save")
-    input(type="hidden" name="bingoId" value=bingoId)
-    p Give me a title: 
-      input(type="text" name="bingoTitle" value=bingoTitle)
-    p Just start typing your items in the text box below.
-    p
-      textarea(name="choices" cols="40" rows="20")
-        = choices
+    h2= message
+    form(method="post" action="/bingo/save")
+      input(type="hidden" name="choices" id="choices")
+      input(type="hidden" name="bingoId" value=bingoId)
+      p Your bingo title: 
+        input(type="text" name="bingoTitle" id="bingoTitle" value=bingoTitle)
+      p Start entering your choices in this text box:
+        br
+        input(type="text" name="bingoEntry" id="bingoEntry")
+      p And use this list box to edit or delete items.
+        br
+        ul(class="bingoList" id="bingoList" name="bingoList")
 
-    p And when you're ready,
-      input(type="submit" value="click to continue")
+        // add any existing items via script, to avoid a bug leaving unwanted space when items are removed
+        - if (choices && choices.length > 0)
+          script
+            - for (var t=0;t < choices.length; ++t)
+              | addBingoItem("#{choices[t]}");
 
-    p ...or 
-      a(href="/overview") back to the overview
+      p And when you're ready,
+        input(type="submit" id="submitButton" name="submitButton" value="click to continue")
+
+      p ...or 
+        a(href="/overview") back to the overview
+    
