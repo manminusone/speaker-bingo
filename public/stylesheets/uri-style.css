@@ -4,7 +4,13 @@ body {
 	background: #fff;
 	color: #333;
 	margin: 0;
+	font-size: 12px;
 }
+
+@media (min-width:  800px) { body { font-size: 16px; } }
+@media (min-width: 1200px) { body { font-size: 18px; } }
+
+
 /* <http://stackoverflow.com/questions/20456694/grid-of-responsive-squares/20457076#20457076> */
 .bingoSquare {float: left; position: relative; width: 20%; padding-bottom: 20%; margin: 0; overflow: hidden; }
 .bingoContent { position: absolute; height: 90%; width: 90%; padding: 0%; }
