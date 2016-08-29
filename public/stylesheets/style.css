@@ -33,3 +33,8 @@ ul.bingoList { width: 40em; height: 20em; border: 1px solid #ccc; padding: 0; ma
 ul.bingoList li { border-top: 1px solid #ccc;  }
 .bingoDel { cursor: pointer; color: #ccc; border: 1px solid #ccc; }
 .bingoDel:hover { color:#f00;  }
+p.bingoEditItem { width: 80%; padding: 4px; background: #333; color:#FFF; font-size: 3em; font-weight: bold; }
+
+#accordionBingo a.titleLink { font-size: 3em; font-family: Lobster,cursive; }
+.activeTest { color:#000; }
+.inactiveTest { color:#ccc; }

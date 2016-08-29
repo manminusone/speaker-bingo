@@ -84,6 +84,7 @@ adminApp.use(function(err, req, res, next) {
   });
 });
 
+console.log('setting up ' + config.vhost.adminDomain);
 app.use(vhost(config.vhost.adminDomain, adminApp));
 
 
@@ -141,6 +142,11 @@ uriApp.use(function(err, req, res, next) {
     error: {}
   });
 });
+console.log('setting up ' + config.vhost.uriDomain);
 app.use(vhost(config.vhost.uriDomain, uriApp));
+
+app.use(vhost('*', function(req,res) {
+  res.send('generic domain received');
+}));
 
 module.exports = app;

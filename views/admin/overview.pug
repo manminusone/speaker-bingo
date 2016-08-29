@@ -1,7 +1,7 @@
 extends layout
 
 block content
-
+  script(src="/javascripts/overview.js")
   div(class="container")
     i(class="fa fa-gears fa-5x fa-pull-right")
     h1 Overview
@@ -9,7 +9,14 @@ block content
     div(class="screenAdmin")
       div(class="col-md-3")
         h1= '/'+presentation.uri
-        h5 currently in creation mode
+        - if (presentation.testBingoId)
+          h5 currently in 
+            strong testing 
+            | mode 
+            a(href=(mobilePort == 443 ? 'https://'+mobileDomain+'/' + presentation.uri : 'http://'+mobileDomain + ':' + mobilePort + '/' + presentation.uri) target="_blank")
+              i(class="fa fa-external-link")
+        - else
+          h5 currently in creation mode
       div(class="col-md-3" )
         h1  #{ bingos.length } cards created
       div(class="col-md-3")
@@ -21,15 +28,30 @@ block content
             a(href='/bingo/new') Create one?
         - else
           p Your bingo sessions:
-          - for (var i = 0; i < bingos.length; ++i)
-            p 
-              a(href="/bingo/edit/"+i) #{bingos[i].title} 
-              - if (presentation.testBingoId && bingos[i]._id.toString() == presentation.testBingoId.toString())
-                a(href="/bingo/test-off") [ 
-                  strong TESTING 
-                  | ]
-              - else
-                a(href="/bingo/test/"+i) [ test me ]
+          div(id="accordionBingo")
+            - for (var i = 0; i < bingos.length; ++i) {
+              h3
+                a(href="/bingo/edit/"+i class="titleLink") #{bingos[i].title} 
+              div
+                p 
+                  i(class="fa fa-pencil-square-o")
+                  |  
+                  a(href="/bingo/edit/"+i) Click to edit 
+                -if (presentation.testBingoId && bingos[i]._id.toString() == presentation.testBingoId.toString())
+                  p
+                    i(class="fa fa-tv activeTest")
+                    | Currently testing this.  
+                    a(href="/bingo/test-off") Click to turn off
+                - else
+                  p
+                    i(class="fa fa-tv inactiveTest")
+                    |  Currently inactive. 
+                    - if (bingos[i].choices.length >= 24)
+                      a(href="/bingo/test/"+i) Click to test
+                    - else
+                      | Needs at least 24 items before you can test (has only #{bingos[i].choices.length}).
+
+            - }
           p Or, if you want to create a new one, 
             a(href='/bingo/new') click here
     div(class="mobileAdmin")

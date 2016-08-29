@@ -67,7 +67,7 @@ module.exports = (options) => {
 				if (! err && doc) {
 					db.bingo.findByIds(req.session.bingoId, function(err,bingos) {
 						if (! err && bingos)
-							res.render('overview', { title: 'Overview', presentation: doc, bingos: bingos });
+							res.render('overview', { title: 'Overview', presentation: doc, bingos: bingos, mobileDomain: config.vhost.uriDomain, mobilePort: config.port });
 						else 
 							res.redirect('/login');
 					});
