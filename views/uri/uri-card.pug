@@ -1,9 +1,6 @@
 extends layout
 
 block content
-  h1= uri
-  h2= title
-
   div(class="bingoSquare")
     div(class="bingoContent")
       div(class="bingoTable")
@@ -36,11 +33,11 @@ block content
         div(class="bingoContent")
           div(class="bingoTable")
             div(class="bingoCell bingoCellOff")
-            - if (row == 3 && col == 3)
-              | FREE SPACE
-            - else {
-              - var item = choices.shift();
-              | #{item}
-            - }
+              - if (row == 3 && col == 3)
+                | FREE SPACE
+              - else {
+                - var item = choices.shift();
+                | #{item}
+              - }
     - }
   - }
