@@ -24,3 +24,11 @@ exports.mailer = {
 		pass: 'p@ssw0rd'
 	}
 };
+exports.socialMedia = {
+	twitter: '',
+	facebook: '',
+	flickr: '',
+	instagram: '',
+	github: '',
+	googleplus: ''
+};

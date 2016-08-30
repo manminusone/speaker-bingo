@@ -63,23 +63,35 @@ html
       div(class="col-md-4")
         p Social media links
         p
-          a(href="https://twitter.com/manminusone" title="Twitter")
-            i(class="fa fa-twitter-square fa-3x")
-          | 
-          a(href="https://facebook.com/therealjamesallenspach" title="Facebook")
-            i(class="fa fa-facebook-square fa-3x")
-          | 
-          a(href="https://flickr.com/jima" title="Flickr")
-            i(class="fa fa-flickr fa-3x")
-          | 
-          a(href="https://instagram.com/manminusone" title="Instagram")
-            i(class="fa fa-instagram fa-3x")
-          | 
-          a(href="https://github.com/manminusone" title="Github")
-            i(class="fa fa-github-square fa-3x")
-          | 
-          a(href="https://plus.google.com/111911850711596746102" title="Google+")
-            i(class="fa fa-google-plus-square fa-3x")
+          - if (config.socialMedia.twitter) {
+            a(href=config.socialMedia.twitter title="Twitter")
+              i(class="fa fa-twitter-square fa-3x")
+            |  
+          - }
+          - if (config.socialMedia.facebook) {
+            a(href=config.socialMedia.facebook title="Facebook")
+              i(class="fa fa-facebook-square fa-3x")
+            |  
+          - }
+          - if (config.socialMedia.flickr) {
+            a(href=config.socialMedia.flickr title="Flickr")
+              i(class="fa fa-flickr fa-3x")
+            |  
+          - }
+          - if (config.socialMedia.instagram) {
+            a(href=config.socialMedia.instagram title="Instagram")
+              i(class="fa fa-instagram fa-3x")
+            |  
+          - }
+          - if (config.socialMedia.github) {
+            a(href=config.socialMedia.github title="Github")
+              i(class="fa fa-github-square fa-3x")
+            |  
+          - }
+          - if (config.socialMedia.googleplus) {
+            a(href=config.socialMedia.googleplus title="Google+")
+              i(class="fa fa-google-plus-square fa-3x")
+          - }
 
       div(class="col-md-4")
         p
