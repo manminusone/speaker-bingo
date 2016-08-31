@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  script(src="/javascripts/signup.js")
+  div(class="container")
+    i(class="fa fa-user fa-5x fa-pull-right")
+    h1 Sign up
+
+    p Paragraph explaining what you're about to do! 
+    p= message
+    form(method="post")
+        table
+            tr
+                th Your email
+                td
+                    input(type="text" id="email" name="email" value=email)
+            tr
+                th Password
+                td
+                    input(type="password" id="pwd" name="pwd")
+            tr
+                th Ready?
+                td
+                    input(type="submit" value="Yep, let's go")
+

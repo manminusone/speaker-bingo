@@ -16,21 +16,21 @@ module.exports = (options) => {
 
 	// sign in
 	router.get('/signup', function(req,res,next) {
-		res.render('signup', { message: '', domain: config.vhost.uriDomain, config: config });
+		res.render('user-signup', { message: '', domain: config.vhost.uriDomain, config: config });
 	});
 	router.post('/signup', function(req,res,next) {
-		db.presentation.findByUriNoPwd(req.body.uri, function(err,doc) {
+		db.user.findByEmail(req.body.email, function(err,doc) {
 			if (doc)
-				res.render('signup', { message: 'URI already exists', domain: config.vhost.uriDomain, uri: req.body.uri, email: req.body.email, config: config });
+				res.render('signup', { message: 'Email already exists', domain: config.vhost.uriDomain, email: req.body.email, config: config });
 			else
-				db.presentation.save({ uri: req.body.uri, contactEmail: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
+				db.user.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
 					console.log('save. err = ' + err + ', num affected = ' + numAffected);
 					if (err) {
 						res.render('signup', { message: err, config: config });
 					} else {
 						req.session.presentationId = product._id;
 						req.session.bingoId = Array();
-						res.redirect('/overview');
+						res.redirect('/profile');
 					}
 				});
 		})
@@ -38,27 +38,40 @@ module.exports = (options) => {
 
 	// log in
 	router.get('/login', function(req,res,next) {
-		res.render('login', { title: 'Login', message: '', config: config });
+		res.render('user-login', { title: 'Login', message: '', config: config });
 	});
 	router.get('/logout', function(req,res,next) {
 		req.session.destroy(function() { res.redirect('/'); });
 	})
 	router.post('/login', function(req,res,next) {
-		db.presentation.findByUri(req.body.uri,req.body.pwd, function(doc) {
+		db.user.find(req.body.email,req.body.pwd, function(doc) {
 			console.log('doc = '+JSON.stringify(doc));
 			if (doc.error)
-				res.render('login', { title: 'Login', message: doc.error, config: config });
+				res.render('user-login', { title: 'Login', message: doc.error, config: config, email: req.body.email });
 			else {
-				req.session.presentationId = doc._id;
-				db.bingo.findByPresentationId(doc._id, function(err,bingos) {
-					var tmp = Array();
-					if (! err && bingos)
-						bingos.forEach(function(o) { tmp.push(o._id); });
-					req.session.bingoId = tmp;
-					res.redirect('/overview');
-				});
+				req.session.userId = doc._id;
+				req.session.presentationId = '';
+				req.session.bingoId = '';
+				res.redirect('/profile');
 			}
 		});
+	});
+
+	router.get('/profile', function(req,res,next) {
+		db.user.findById(req.session.userId, function(err,u) {
+			var uris = Array();
+			if (!err & u) {
+				db.presentation.findByOwnerId(req.session.userId, function(err,plist) {
+					
+					if (plist) {
+
+					}
+				});
+				res.render('user-profile', { config: config, email: u.email, gravatar: gravatar.url(u.email) });
+			}
+			else
+				res.redirect('/login');
+		})
 	});
 
 	router.get('/overview', function(req,res,next) {
