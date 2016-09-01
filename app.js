@@ -15,21 +15,22 @@ mongoose.Promise = require('bluebird');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 
+var app = express(), adminApp = express(), uriApp = express();
+var mailer = require('express-mailer');
+
 var db = require('./routes/db')({ 'mongoose': mongoose });
 var adminUsers = require('./routes/users')({ 'db': db });
-var adminRoutes = require('./routes/index')({ 'db': db, 'config': config });
 var uriRoutes = require('./routes/uri')({ 'db': db, 'config': config });
 var apiRoutes = require('./routes/api')({ 'db': db, 'config': config });
 var vhost = require('vhost');
 
-var app = express(), adminApp = express(), uriApp = express();
-var mailer = require('express-mailer');
-mailer.extend(app, config.mailer);
 
 
 // view engine setup
 adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
+mailer.extend(adminApp, config.mailer);
+var adminRoutes = require('./routes/index')({ 'db': db, 'config': config, 'mailer': adminApp.mailer });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -69,7 +70,8 @@ if (adminApp.get('env') === 'development') {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
-      error: err
+      error: err,
+      config: config
     });
   });
 }
@@ -80,7 +82,8 @@ adminApp.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
-    error: {}
+    error: {},
+    config: config
   });
 });
 
@@ -128,7 +131,8 @@ if (uriApp.get('env') === 'development') {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
-      error: err
+      error: err,
+      config: config
     });
   });
 }
@@ -139,7 +143,8 @@ uriApp.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
-    error: {}
+    error: {},
+    config: config
   });
 });
 console.log('setting up ' + config.vhost.uriDomain);

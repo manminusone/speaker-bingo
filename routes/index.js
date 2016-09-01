@@ -7,6 +7,9 @@ module.exports = (options) => {
 	var router = express.Router();
 	var db = options.db;
 	var config = options.config;
+	console.log(options.mailer);
+	var mail = require('./mail')({ 'config': config, 'db': db, 'mailer': options.mailer });
+	var gravatar = require('gravatar');
 
 	/* GET home page. */
 	router.get('/', function(req, res, next) {
@@ -28,13 +31,31 @@ module.exports = (options) => {
 					if (err) {
 						res.render('signup', { message: err, config: config });
 					} else {
-						req.session.presentationId = product._id;
-						req.session.bingoId = Array();
-						res.redirect('/profile');
+						mail.user.sendActivation(product, function(err) {
+							if (! err) {
+								req.session.userId = product._id;
+								res.redirect('/profile');
+							} else
+							res.redirect('/');
+						})
 					}
 				});
 		})
 	});
+	router.get('/activation', function(req,res,next) {
+		if (req.session.userId)
+			db.user.findById(req.session.userId, function(err,u) {
+				if (u) 
+					mail.user.sendActivation(u, function(err) {
+						res.render('user-profile', { config:config, user: u, gravatar: gravatar.url(u.email)});
+					});
+				else
+					res.redirect('/');
+			});
+		else
+			res.redirect('/');
+		
+	})
 
 	// log in
 	router.get('/login', function(req,res,next) {
@@ -60,14 +81,10 @@ module.exports = (options) => {
 	router.get('/profile', function(req,res,next) {
 		db.user.findById(req.session.userId, function(err,u) {
 			var uris = Array();
-			if (!err & u) {
+			if (!err && u) {
 				db.presentation.findByOwnerId(req.session.userId, function(err,plist) {
-					
-					if (plist) {
-
-					}
+					res.render('user-profile', { config: config, user: u, gravatar: gravatar.url(u.email) });
 				});
-				res.render('user-profile', { config: config, email: u.email, gravatar: gravatar.url(u.email) });
 			}
 			else
 				res.redirect('/login');
