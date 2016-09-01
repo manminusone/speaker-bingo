@@ -67,7 +67,7 @@ module.exports = (options) => {
 
 					}
 				});
-				res.render('user-profile', { config: config, email: u.email, gravatar: gravatar.url(u.email) });
+				res.render('user-profile', { config: config, user: u, presentationList: plist, gravatar: gravatar.url(u.email) });
 			}
 			else
 				res.redirect('/login');
