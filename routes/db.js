@@ -2,6 +2,7 @@
 module.exports = (options) => {
 	var mongoose = options.mongoose;
 	var bcrypt = require('bcrypt');
+	var md5 = require('md5');
 
 	var Schema = mongoose.Schema;
 
@@ -14,9 +15,20 @@ module.exports = (options) => {
 		loginDate: Date,
 		isValidated: { type: Boolean, default: false },
 		isActive: { type: Boolean, default: false },
-		isAdmin: { type: Boolean, default: false }
+		isAdmin: { type: Boolean, default: false },
+		uris: [ { type: Schema.Types.ObjectId, ref: 'Presentation' }]
 	}),
-		User = mongoose.mode('User',UserSchema);
+		User = mongoose.model('User',UserSchema);
+
+//	activation code
+	var ActivationCodeSchema = new Schema({
+		userId: { type: Schema.Types.ObjectId, ref: 'User' },
+		sentDate: { type: Date, default: Date.now },
+		hash: String,
+		claimed: { type: Boolean, default: false },
+		claimDate: Date
+	}),
+		ActivationCode = mongoose.model('ActivationCode',ActivationCodeSchema);
 
 //	bingo schemas
 	var PresentationSchema = new Schema({
@@ -76,7 +88,7 @@ module.exports = (options) => {
 				} else
 					cb({ error: 'Not enough information to save '});
 			}
-		}
+		},
 		presentation: {
 			new: function() { return new Presentation(); },
 			findByOwnerId: function(id,cb) { Presentation.findById(id).populate('bingos').exec(cb); },
@@ -132,6 +144,27 @@ module.exports = (options) => {
 					tmp.save(cb);
 				}
 			}
+		},
+		activation: {
+			new: function(userObject) { var millis = new Date().getMilliseconds(); return new ActivationCode({ userId: userObject._id, hash: md5(userObject.email + ' '+millis.toString()) }); },
+			activate: function(hash,cb) {
+				ActivationCode.findOne({ hash: hash }, function(err,doc) {
+					if (doc) {
+						if (doc.claimed)
+							cb('Account is already activated', doc);
+						else {
+							doc.claimed = true;
+							doc.claimDate = new Date();
+							doc.save(function(err) { cb(err); })
+						}
+					}
+				});
+			},
+			clean: function() {
+				var q = ActivationCode.find().remove({ sentDate: { $lt: new Date(Date.now() - 1000 * 14 * 86400) } });
+				q.exec();
+			}
+
 		}
 	};
 };
