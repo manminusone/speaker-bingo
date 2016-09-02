@@ -1,36 +1,42 @@
 
 
+// requires with no config needed
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var config = require('./config');
 var mongoose = require('mongoose');
-mongoose.connect(config.mongodb.uri);
-mongoose.Promise = require('bluebird');
-
 var session = require('express-session');
-var mongoStore = require('connect-mongo')(session);
-
-var app = express(), adminApp = express(), uriApp = express();
 var mailer = require('express-mailer');
-
-var db = require('./routes/db')({ 'mongoose': mongoose });
-var adminUsers = require('./routes/users')({ 'db': db });
-var uriRoutes = require('./routes/uri')({ 'db': db, 'config': config });
-var apiRoutes = require('./routes/api')({ 'db': db, 'config': config });
 var vhost = require('vhost');
 
+var config = require('./config');
 
+// requires with configs
+mongoose.connect(config.mongodb.uri);
+mongoose.Promise = require('bluebird');
+var mongoStore = require('connect-mongo')(session);
+
+var app = express(), adminApp = express(), mobileApp = express();
+
+// library objects that may be used in multiple routes/libs
+var db = require('./routes/lib/db')({ 'mongoose': mongoose });
+var mail = require('./routes/lib/mail')( { 'config': config, 'db': db,  'mailer':  } )
+
+var adminRoutes = require('./routes/admin/index')({ 'db': db, 'config': config, 'mailer': adminApp.mailer });
+var mobileRoutes = require('./routes/mobile/index')({ 'db': db, 'config': config });
+var apiRoutes = require('./routes/api/index')({ 'db': db, 'config': config });
+
+
+
+// --- admin site setup ---
 
 // view engine setup
 adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
 mailer.extend(adminApp, config.mailer);
-var adminRoutes = require('./routes/index')({ 'db': db, 'config': config, 'mailer': adminApp.mailer });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -51,7 +57,6 @@ adminApp.use(session({
 
 
 adminApp.use('/', adminRoutes);
-adminApp.use('/users', adminUsers);
 adminApp.use('/api', apiRoutes);
 
 // catch 404 and forward to error handler
@@ -87,23 +92,23 @@ adminApp.use(function(err, req, res, next) {
   });
 });
 
-console.log('setting up ' + config.vhost.adminDomain);
 app.use(vhost(config.vhost.adminDomain, adminApp));
 
+// --- mobile site setup ---
 
 // view engine setup
-uriApp.set('views', path.join(__dirname, 'views/uri'));
-uriApp.set('view engine', 'pug');
+mobileApp.set('views', path.join(__dirname, 'views/uri'));
+mobileApp.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-uriApp.use(logger('dev'));
-uriApp.use(bodyParser.json());
-uriApp.use(bodyParser.urlencoded({ extended: false }));
-uriApp.use(cookieParser());
-uriApp.use(express.static(path.join(__dirname, 'public')));
+mobileApp.use(logger('dev'));
+mobileApp.use(bodyParser.json());
+mobileApp.use(bodyParser.urlencoded({ extended: false }));
+mobileApp.use(cookieParser());
+mobileApp.use(express.static(path.join(__dirname, 'public')));
 
-uriApp.use(session({
+mobileApp.use(session({
   secret: 'otherSecret',
   resave: false,
   saveUninitialized: false,
@@ -113,10 +118,10 @@ uriApp.use(session({
 }));
 
 
-uriApp.use('/', uriRoutes);
+mobileApp.use('/', mobileRoutes);
 
 // catch 404 and forward to error handler
-uriApp.use(function(req, res, next) {
+mobileApp.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -126,8 +131,8 @@ uriApp.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (uriApp.get('env') === 'development') {
-  uriApp.use(function(err, req, res, next) {
+if (mobileApp.get('env') === 'development') {
+  mobileApp.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -139,7 +144,7 @@ if (uriApp.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-uriApp.use(function(err, req, res, next) {
+mobileApp.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -147,9 +152,9 @@ uriApp.use(function(err, req, res, next) {
     config: config
   });
 });
-console.log('setting up ' + config.vhost.uriDomain);
-app.use(vhost(config.vhost.uriDomain, uriApp));
+app.use(vhost(config.vhost.uriDomain, mobileApp));
 
+// catch-all
 app.use(vhost('*', function(req,res) {
   res.send('generic domain received');
 }));
