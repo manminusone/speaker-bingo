@@ -6,8 +6,17 @@ block content
     i(class="fa fa-user fa-5x fa-pull-right")
     h1 Sign up
 
-    p Paragraph explaining what you're about to do! 
-    p= message
+    p Before you can start creating your bingo cards, please create a user account. If your email is already in our system and you've forgotten your password, don't fret: you can 
+      a(href="/pwdreset") send yourself an email 
+      | to get your password reset.
+
+    - if (message)
+      div(class="alert alert-danger alert-dismissible" role="alert")
+        button(type="button" class="close" data-dismiss="alert" aria-label="Close")
+            span(aria-hidden="true") &times;
+        strong Error: 
+        | #{message}
+
     form(method="post")
         table
             tr

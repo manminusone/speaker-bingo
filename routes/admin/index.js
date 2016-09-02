@@ -4,44 +4,51 @@
 module.exports = (options) => {
 
 	var express = require('express');
-	var router = express.Router();
-	var db = options.db;
-	var config = options.config;
-	console.log(options.mailer);
-	var mail = require('./mail')({ 'config': config, 'db': db, 'mailer': options.mailer });
 	var gravatar = require('gravatar');
+	var router = express.Router();
+	var config = options.config;
+	var userlib = options.userlib;
+	var doclib = options.doclib;
+	var mailer = options.mailer;
 
-	/* GET home page. */
+	// home page
 	router.get('/', function(req, res, next) {
-	  res.render('index', { title: 'Express', config: config });
+	  res.render('index', { title: 'Speaker Bingo', config: config });
 	});
 
 
 	// sign in
 	router.get('/signup', function(req,res,next) {
-		res.render('user-signup', { message: '', domain: config.vhost.uriDomain, config: config });
+		res.render('user-signup', { title: 'Sign up', message: '', config: config });
 	});
 	router.post('/signup', function(req,res,next) {
-		db.user.findByEmail(req.body.email, function(err,doc) {
-			if (doc)
-				res.render('signup', { message: 'Email already exists', domain: config.vhost.uriDomain, email: req.body.email, config: config });
+
+		userlib.find({ email: req.body.email }, function(err,userRec) {
+			if (userRec)
+				res.render('user-signup', { title: 'Sign up', message: 'Email already exists', email: req.body.email, config: config });
 			else
 				db.user.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
-					console.log('save. err = ' + err + ', num affected = ' + numAffected);
 					if (err) {
-						res.render('signup', { message: err, config: config });
+						res.render('user-signup', { title: 'Sign up', message: err, email: req.body.email, config: config });
 					} else {
-						mail.user.sendActivation(product, function(err) {
-							if (! err) {
-								req.session.userId = product._id;
-								res.redirect('/profile');
-							} else
-							res.redirect('/');
-						})
+
+						mailer.send('email/activation',
+							{to: product.email,
+							from: config.mailer.from,
+							subject: 'Speaker Bingo - activation',
+							activation: userlib.activation.new(product)}, // FIXME
+							function(err) {
+								if (err) {
+									console.log(err);
+								}
+								res.render('message', { 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+							}
+						);
 					}
 				});
-		})
+		});
 	});
+
 	router.get('/activation', function(req,res,next) {
 		if (req.session.userId)
 			db.user.findById(req.session.userId, function(err,u) {

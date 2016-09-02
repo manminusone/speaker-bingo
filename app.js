@@ -22,12 +22,9 @@ var mongoStore = require('connect-mongo')(session);
 var app = express(), adminApp = express(), mobileApp = express();
 
 // library objects that may be used in multiple routes/libs
-var db = require('./routes/lib/db')({ 'mongoose': mongoose });
-var mail = require('./routes/lib/mail')( { 'config': config, 'db': db,  'mailer':  } )
-
-var adminRoutes = require('./routes/admin/index')({ 'db': db, 'config': config, 'mailer': adminApp.mailer });
-var mobileRoutes = require('./routes/mobile/index')({ 'db': db, 'config': config });
-var apiRoutes = require('./routes/api/index')({ 'db': db, 'config': config });
+// var db = require('./routes/lib/db')({ 'mongoose': mongoose });
+var userlib = require('./routes/lib/user')( { 'config': config, 'mongoose': mongoose } );
+var doclib = require('./routes/lib/bingodocs')( { 'config': config, 'mongoose': mongoose });
 
 
 
@@ -37,6 +34,8 @@ var apiRoutes = require('./routes/api/index')({ 'db': db, 'config': config });
 adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
 mailer.extend(adminApp, config.mailer);
+
+var adminRoutes = require('./routes/admin/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib, 'mailer': adminApp.mailer });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -54,6 +53,10 @@ adminApp.use(session({
     mongooseConnection: mongoose.connection
   })
 }));
+
+// --- api setup ---
+var apiRoutes = require('./routes/api/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib });
+
 
 
 adminApp.use('/', adminRoutes);
@@ -99,6 +102,8 @@ app.use(vhost(config.vhost.adminDomain, adminApp));
 // view engine setup
 mobileApp.set('views', path.join(__dirname, 'views/uri'));
 mobileApp.set('view engine', 'pug');
+
+var mobileRoutes = require('./routes/mobile/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
