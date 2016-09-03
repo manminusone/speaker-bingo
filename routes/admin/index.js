@@ -27,42 +27,90 @@ module.exports = (options) => {
 			if (userRec)
 				res.render('user-signup', { title: 'Sign up', message: 'Email already exists', email: req.body.email, config: config });
 			else
-				db.user.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
+				userlib.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
 					if (err) {
 						res.render('user-signup', { title: 'Sign up', message: err, email: req.body.email, config: config });
 					} else {
-
-						mailer.send('email/activation',
-							{to: product.email,
-							from: config.mailer.from,
-							subject: 'Speaker Bingo - activation',
-							activation: userlib.activation.new(product)}, // FIXME
-							function(err) {
-								if (err) {
-									console.log(err);
+						var ac = userlib.activation.new(product);
+						ac.save(function(err) {
+							mailer.send('email/activation',
+								{
+									'to': product.email,
+									'from': config.mailer.from,
+									'subject': 'Speaker Bingo - activation',
+									'activation': ac,
+									'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
+								},
+								function(err) {
+									if (err) {
+										console.log(err);
+										res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+									}
+									res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
 								}
-								res.render('message', { 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
-							}
-						);
+							);
+						});
 					}
 				});
 		});
 	});
 
-	router.get('/activation', function(req,res,next) {
+	router.get('/activation', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
 		if (req.session.userId)
-			db.user.findById(req.session.userId, function(err,u) {
-				if (u) 
-					mail.user.sendActivation(u, function(err) {
-						res.render('user-profile', { config:config, user: u, gravatar: gravatar.url(u.email)});
-					});
-				else
+			userlib.find({ 'id': req.session.userId }, function(err,product) {
+				if (product) {
+					var ac = userlib.activation.new(product);
+					ac.save(function(err) {
+						mailer.send('email/activation',
+							{
+								'to': product.email,
+								'from': config.mailer.from,
+								'subject': 'Speaker Bingo - activation',
+								'activation': ac,
+								'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
+							},
+							function(err) {
+								if (err) {
+									console.log(err);
+									res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+								}
+								res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+							}
+						);
+					})
+				} else
 					res.redirect('/');
 			});
 		else
 			res.redirect('/');
 		
-	})
+	});
+	router.get('/activate', function(req,res,next) {
+		if (req.query.q) {
+			userlib.activation.activate(req.query.q, function(err,doc) {
+				res.render('message', { 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
+			});
+		}
+	});
+
+	/*router.get('/mailtest', function(req,res,next) {
+						mailer.send('email/activation',
+							{to: 'jima@legnog.com',
+							from: config.mailer.from,
+							subject: 'Speaker Bingo - activation',
+							// activation: userlib.activation.new(product)
+							}, // FIXME
+							function(err) {
+								if (err) {
+									console.log(err);
+									res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+								}
+								res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+							}
+						);
+	});*/
 
 	// log in
 	router.get('/login', function(req,res,next) {
@@ -72,10 +120,10 @@ module.exports = (options) => {
 		req.session.destroy(function() { res.redirect('/'); });
 	})
 	router.post('/login', function(req,res,next) {
-		db.user.find(req.body.email,req.body.pwd, function(doc) {
+		userlib.find({ 'email': req.body.email, 'pwd': req.body.pwd }, function(err,doc) {
 			console.log('doc = '+JSON.stringify(doc));
-			if (doc.error)
-				res.render('user-login', { title: 'Login', message: doc.error, config: config, email: req.body.email });
+			if (err)
+				res.render('user-login', { title: 'Login', message: err, config: config, email: req.body.email });
 			else {
 				req.session.userId = doc._id;
 				req.session.presentationId = '';
@@ -85,17 +133,17 @@ module.exports = (options) => {
 		});
 	});
 
-	router.get('/profile', function(req,res,next) {
-		db.user.findById(req.session.userId, function(err,u) {
+	router.get('/profile', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
+		userlib.find({ 'id': req.session.userId }, function(err,u) {
 			var uris = Array();
 			if (!err && u) {
-				db.presentation.findByOwnerId(req.session.userId, function(err,plist) {
-					res.render('user-profile', { config: config, user: u, gravatar: gravatar.url(u.email) });
-				});
-			}
-			else
+				console.log(JSON.stringify(u));
+				res.render('user-profile', { config: config, user: u, gravatar: gravatar.url(u.email) });
+			} else
 				res.redirect('/login');
-		})
+		});
 	});
 
 	router.get('/overview', function(req,res,next) {
@@ -117,11 +165,10 @@ module.exports = (options) => {
 	});
 
 	// bingo routes
-	router.get('/bingo/new', function(req,res,next) {
-		if (req.session.presentationId)
+	router.get('/bingo/new', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
 			res.render('bingo-new', { title: 'New Bingo Session', config: config });
-		else
-			res.redirect('/login');	
 	});
 
 	router.post('/bingo/save', function(req,res,next) {

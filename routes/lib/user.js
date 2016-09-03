@@ -1,4 +1,6 @@
 module.exports = (options) => {
+	var bcrypt = require('bcrypt');
+	var md5 = require('md5');
 
 	var config = options.config;
 	var mongoose = options.mongoose;
@@ -15,13 +17,13 @@ module.exports = (options) => {
 		isValidated: { type: Boolean, default: false },
 		isActive: { type: Boolean, default: false },
 		isAdmin: { type: Boolean, default: false },
-		uris: [ { type: Schema.Types.ObjectId, ref: 'Presentation' }]
+		presentations: [ { type: Schema.Types.ObjectId, ref: 'Presentation' }]
 	}),
 		User = mongoose.model('User',UserSchema);
 
 //	activation code
 	var ActivationCodeSchema = new Schema({
-		userId: { type: Schema.Types.ObjectId, ref: 'User' },
+		user: { type: Schema.Types.ObjectId, ref: 'User' },
 		sentDate: { type: Date, default: Date.now },
 		hash: String,
 		claimed: { type: Boolean, default: false },
@@ -51,7 +53,7 @@ module.exports = (options) => {
 					}
 				);
 			} else if (opts.id) {
-				User.findById(id,cb);
+				User.findById(opts.id,cb);
 			} else if (opts.email) {
 				User.findOne({ email: opts.email }, cb);
 			} else
@@ -73,17 +75,22 @@ module.exports = (options) => {
 				cb({ error: 'Not enough information to save '});
 		},
 		activation: {
-			new: function(userObject) { var millis = new Date().getMilliseconds(); return new ActivationCode({ userId: userObject._id, hash: md5(userObject.email + ' '+millis.toString()) }); },
+			new: function(userObject) { var millis = new Date().getMilliseconds(); return new ActivationCode({ user: userObject._id, hash: md5(userObject.email + ' '+millis.toString()) }); },
 			activate: function(hash,cb) {
-				ActivationCode.findOne({ hash: hash }, function(err,doc) {
+				ActivationCode.findOne({ hash: hash }).populate('user').exec(function(err,doc) {
+					console.log(JSON.stringify(doc));
 					if (doc) {
 						if (doc.claimed)
 							cb('Account is already activated', doc);
 						else {
+							doc.user.isValidated = true;
+							doc.user.isActive = true;
 							doc.claimed = true;
 							doc.claimDate = new Date();
-							doc.save(function(err) { cb(err); })
+							doc.user.save(function(err) { doc.save(cb); });
 						}
+					} else{
+						cb('Activation code not found', null);
 					}
 				});
 			},

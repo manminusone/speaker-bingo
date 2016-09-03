@@ -33,6 +33,7 @@ var doclib = require('./routes/lib/bingodocs')( { 'config': config, 'mongoose': 
 // view engine setup
 adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
+// console.log('setting up mailer - ' + JSON.stringify( config.mailer));
 mailer.extend(adminApp, config.mailer);
 
 var adminRoutes = require('./routes/admin/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib, 'mailer': adminApp.mailer });
