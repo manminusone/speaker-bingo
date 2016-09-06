@@ -1,6 +1,11 @@
 #ovPres h3 { font-family: Lobster,cursive; background: #ccf; font-size: 200%; }
+#ovPres h3 span.presName:focus { background: white; }
+#ovPres h3 span.label { font-family: 'Open Sans',sans-serif; font-size: 35%; }
 #ovPres ul.bingoList li { font-size: 150%; list-style-type: none; background: #338; color: #fff; font-weight: bold; border: 1px solid #88f; padding: 4px; width: 100%;}
 #ovPres ul.bingoList li small { font-size: 50%;  }
+
+ul.bingoList li.clickMe { cursor: pointer; }
+
 .editIcon:hover   { color: #aaf; cursor: pointer; }
 .activeIcon:hover { color: #afa; cursor: pointer; }
 .delIcon:hover    { color: #faa; cursor: pointer; }
@@ -10,3 +15,7 @@
 
 div.presItem { }
 div.presItem h1 { font-size: 300%; background: #ccf; border: 1px solid #338; padding: 8px; margin-top: 0; border-radius: 10px; width: 50%;}
+
+i.fa-disabled { color: #999; }
+
+span.bingoName:focus { background: #66a; }

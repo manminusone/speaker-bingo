@@ -37,6 +37,8 @@ module.exports = (options) => {
 					Presentation.find({ ownerId: opts.ownerId }).populate('bingos').exec(cb);
 				else if (opts.id)
 					Presentation.findById(opts.id).populate('bingos').exec(cb); 
+				else if (opts.uri) 
+					Presentation.findOne({ uri: opts.uri }).populate('bingos').exec(cb);
 				else
 					cb('Unknown call of find() method', null);
 			},
