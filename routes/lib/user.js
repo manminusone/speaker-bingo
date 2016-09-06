@@ -95,7 +95,7 @@ module.exports = (options) => {
 				});
 			},
 			clean: function() {
-				var q = ActivationCode.find().remove({ sentDate: { $lt: new Date(Date.now() - 1000 * 14 * 86400) } });
+				var q = ActivationCode.find().remove({ sentDate: { $lt: new Date(Date.now() - 1000 * 86400) } }); // expires in 1 day
 				q.exec();
 			}
 		}

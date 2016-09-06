@@ -1,7 +1,8 @@
 extends layout
 
 block content
-  script(src="/javascripts/overview.js")
+  script(src="/javascripts/user-profile.js")
+  link(rel="stylesheet" href="/stylesheets/user-profile.css")
   div(class="container")
     i(class="fa fa-gears fa-5x fa-pull-right")
     h1 Overview
@@ -12,8 +13,18 @@ block content
         img(src=gravatar)
 
       - if (user.isActive && user.isValidated) {
-        p If you want to create a new presentation, 
-          a(href='/bingo/new') click here
+        p Here on the profile page, you can create 
+          strong presentations. 
+          | A presentation is associated with a single URI on the mobile site, and consists of a collection of 
+          strong games. 
+          | This allows you, for example, to prepare multiple games for a single event. 
+
+        div(id="ovPres" name="ovPres" class="presContainer")
+
+        p If you want to create a new presentation, click this button.
+          button(type="button" class="btn btn-primary" id="newPresentationButton" name="newPresentationButton") 
+            i(class="fa fa-plus-circle") 
+            |   Add new presentation
       - } else if (!user.isValidated) {
         div(class="col-md-12")
           p Your account needs to be verified. Check your email for a verification message.

@@ -95,24 +95,7 @@ module.exports = (options) => {
 		}
 	});
 
-	/*router.get('/mailtest', function(req,res,next) {
-						mailer.send('email/activation',
-							{to: 'jima@legnog.com',
-							from: config.mailer.from,
-							subject: 'Speaker Bingo - activation',
-							// activation: userlib.activation.new(product)
-							}, // FIXME
-							function(err) {
-								if (err) {
-									console.log(err);
-									res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
-								}
-								res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
-							}
-						);
-	});*/
-
-	// log in
+	// log in/out
 	router.get('/login', function(req,res,next) {
 		res.render('user-login', { title: 'Login', message: '', config: config });
 	});
@@ -171,16 +154,12 @@ module.exports = (options) => {
 			res.render('bingo-new', { title: 'New Bingo Session', config: config });
 	});
 
-	router.post('/bingo/save', function(req,res,next) {
-		if (req.session.presentationId) { // logged in
-			console.log('yay, logged in');
-			console.log('-- choices = ' + req.body.choices);
+	router.post('/bingo/save', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
 			var choices = JSON.parse(req.body.choices);
-			console.log('-- parsed choices = ' + choices);
-			var b = null;
 			if (req.body.bingoId) {
-				console.log('saving existing');
-				db.bingo.save({
+				doclib.save({
 					id: req.body.bingoId,
 					title: req.body.bingoTitle,
 					choices: choices
@@ -200,9 +179,8 @@ module.exports = (options) => {
 					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices, config: config });
 				});
 			}
-		} else
-			res.redirect('/login');
-	});
+		}
+	);
 
 	router.get('/bingo/edit/:num', function(req,res,next) {
 		if (req.session.presentationId) {

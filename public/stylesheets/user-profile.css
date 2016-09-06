@@ -1,0 +1,12 @@
+#ovPres h3 { font-family: Lobster,cursive; background: #ccf; font-size: 200%; }
+#ovPres ul.bingoList li { font-size: 150%; list-style-type: none; background: #338; color: #fff; font-weight: bold; border: 1px solid #88f; padding: 4px; width: 100%;}
+#ovPres ul.bingoList li small { font-size: 50%;  }
+.editIcon:hover   { color: #aaf; cursor: pointer; }
+.activeIcon:hover { color: #afa; cursor: pointer; }
+.delIcon:hover    { color: #faa; cursor: pointer; }
+
+#ovPres ul.choiceList  { overflow: hidden; overflow-y: scroll; height: 10em; width: 100%; padding: 0; }
+#ovPres ul.choiceList li { background: #339; color: #ffc; border-bottom: 1px solid #990; padding: 2px 0 2px 8px; }
+
+div.presItem { }
+div.presItem h1 { font-size: 300%; background: #ccf; border: 1px solid #338; padding: 8px; margin-top: 0; border-radius: 10px; width: 50%;}
