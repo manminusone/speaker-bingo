@@ -19,7 +19,7 @@ block content
           strong games. 
           | This allows you, for example, to prepare multiple games for a single event. 
 
-        div(id="ovPres" name="ovPres" class="presContainer")
+        div(class="presContainer")
 
         p If you want to create a new presentation, click this button.
           button(type="button" class="btn btn-primary" id="newPresentationButton" name="newPresentationButton") 
@@ -34,3 +34,46 @@ block content
 
     div(class="mobileAdmin")
       p something goes here
+  // storage space for dom templates
+  div(class="storage template" style="display: none")
+    div(class="presContainer template")
+      h3(class="containerh3 template") /
+        span(class="presName" contenteditable="true") title 
+        span(class="label label-default") Waiting
+        span(class="pull-right")
+          i(class="fa fa-save fa-disabled")
+
+      div(class="containerDiv template")
+        div(class="col-md-8")
+          ul(class="bingoList")
+            li(class="clickMe") click to add items
+
+        div(class="col-md-4")
+          table
+            tr 
+              th Name 
+              td 
+                input(type="text" class="nameInput" value="Name here")
+            tr 
+              td 
+              td
+                input(type="text" class="adderInput" placeholder="Type items here")
+            tr
+              td
+              td
+                ul(class="choiceList")
+                  li(class="empty-item")
+                  li(class="empty-item")
+                  li(class="empty-item")
+                  li(class="empty-item")
+                  li(class="empty-item")
+                  li(class="empty-item")
+
+    li(class="bingoItem template") title  
+      small 0 items
+      span(class="pull-right")
+        i(class="fa fa-pencil-square-o editIcon")
+        |  
+        i(class="fa fa-circle activeIcon")  
+        |  
+        i(class="fa fa-times-circle delIcon")

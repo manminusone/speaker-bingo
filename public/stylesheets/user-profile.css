@@ -1,8 +1,8 @@
-#ovPres h3 { font-family: Lobster,cursive; background: #ccf; font-size: 200%; }
-#ovPres h3 span.presName:focus { background: white; }
-#ovPres h3 span.label { font-family: 'Open Sans',sans-serif; font-size: 35%; }
-#ovPres ul.bingoList li { font-size: 150%; list-style-type: none; background: #338; color: #fff; font-weight: bold; border: 1px solid #88f; padding: 4px; width: 100%;}
-#ovPres ul.bingoList li small { font-size: 50%;  }
+.presContainer h3 { font-family: Lobster,cursive; background: #ccf; font-size: 200% !important; }
+.presContainer h3 span.presName:focus { background: white; }
+.presContainer h3 span.label { font-family: 'Open Sans',sans-serif; font-size: 35%; }
+.presContainer ul.bingoList li { font-size: 150%; list-style-type: none; background: #338; color: #fff; font-weight: bold; border: 1px solid #88f; padding: 4px; width: 100%;}
+.presContainer ul.bingoList li small { font-size: 50%;  }
 
 ul.bingoList li.clickMe { cursor: pointer; }
 
@@ -10,8 +10,9 @@ ul.bingoList li.clickMe { cursor: pointer; }
 .activeIcon:hover { color: #afa; cursor: pointer; }
 .delIcon:hover    { color: #faa; cursor: pointer; }
 
-#ovPres ul.choiceList  { overflow: hidden; overflow-y: scroll; height: 10em; width: 100%; padding: 0; }
-#ovPres ul.choiceList li { background: #339; color: #ffc; border-bottom: 1px solid #990; padding: 2px 0 2px 8px; }
+.presContainer ul.choiceList  { overflow: hidden; overflow-y: scroll; height: 10em; width: 100%; padding: 0; }
+.presContainer ul.choiceList li.empty-item { background: #eee;  border-bottom: 1px solid #ccc; padding: 2px 0 2px 8px; }
+.presContainer ul.choiceList li { background: #339; color: #ffc; border-bottom: 1px solid #990; padding: 2px 0 2px 8px; }
 
 div.presItem { }
 div.presItem h1 { font-size: 300%; background: #ccf; border: 1px solid #338; padding: 8px; margin-top: 0; border-radius: 10px; width: 50%;}

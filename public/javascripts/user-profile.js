@@ -4,30 +4,14 @@ var currentPresId = '';
 var saveList = [];
 
 function updateSaveList(e) {
-	var num = /(\d+)$/.exec(e.target.id)[1];
-	if (!saveList[num])
-		saveList[num] = {};
-	saveList[num].uri = $('#presTitle'+num)[0].innerText;
-	if (!saveList[num].bingo)
-		saveList[num].bingo = [];
-	for (var iter = 1; iter < $('#presContent'+num+' ul.bingoList').length; ++iter) {
-		if (! saveList[num].bingo[iter])
-			saveList[num].bingo[iter] = {};
-		saveList[num].bingo[iter].title = $('#presContent'+num+' ul.bingoList #bingoTitle'+iter).innerText;
-	}
 }
 
-function enableSave(evt) {
-	console.log(evt.target.id);
-	if (evt.target.id.substr(0,9) == 'presTitle') { // changed the uri
-		console.log('*** changed title');
-	} else if (evt.target.id.substr(0,7) == 'clickMe') { // added an item to the list
-		console.log('*** added list item');
-	}
-	var num = /(\d+)$/.exec(evt.target.id)[1];
-	$('#save'+num).click(function(e) { doSave(e);  });
+function enableSave(spanItem) {
+	var saveIcon = $(spanItem).parent().find('i.fa-save');
 
-	$('#save'+num).removeClass('fa-disabled');
+	saveIcon
+		.click(function(e) { doSave(e);  })
+		.removeClass('fa-disabled');
 }
 
 function doSave(e) {
@@ -36,48 +20,77 @@ function doSave(e) {
 	var num = /(\d+)$/.exec(e.target.id);
 }
 
-var checkUriFn = function(currentVal,uriIndicator) {
- 		if (currentVal == '')
- 			uriIndicator.removeClass('label-success label-danger')
- 				.addClass('label-default')
- 				.text('Waiting');
- 		else
+var checkUriFn = function(spanItem) {
+	var currentVal = spanItem.innerText;
+	var uriIndicator = spanItem.nextSibling;
+
+	if (currentVal == '')
+		uriIndicator.removeClass('label-success label-danger')
+			.addClass('label-default')
+			.text('Waiting');
+	else
 		$.getJSON('/api/uri/'+currentVal, function(data) {
-			console.log('- data = ' + JSON.stringify(data));
+			console.log(JSON.stringify(data));
 			if (data.exists)
-				uriIndicator.removeClass('label-default label-success')
+				$(uriIndicator).removeClass('label-default label-success')
 					.addClass('label-danger')
 					.text('Exists');
 			else
-				uriIndicator.removeClass('label-default label-danger')
+				$(uriIndicator).removeClass('label-default label-danger')
 					.addClass('label-success')
 					.text('Available');
-
-
 		});
-	};
-
+};
 
 $(document).ready(function() {
-	$('#accordionBingo').accordion();
-	$('#ovPres').accordion();
+	$('.presContainer:not(.template)').accordion();
 	$('#newPresentationButton').click(function(e) {
-		var numItems = $('#ovPres > h3').length + 1;
+		// .presContainer.template contains two children: <h3> and <div>. both of these items need to be cloned and inserted into the .presContainer
+		var newh3 = $('.presContainer.template h3.containerh3.template').clone().removeClass('template'),
+		    newDiv = $('.presContainer.template div.containerDiv.template').clone().removeClass('template');
 
-		var newPres = '<h3>  /<span class="presName" contenteditable="true" id="presTitle'+numItems+'" name="presTitle'+numItems+'">title</span> <span id="indicator'+numItems+'" name="indicator'+numItems+'" class="label label-default"> Waiting </span> <span class="pull-right"><i class="fa fa-save fa-disabled" id="save'+numItems+'" name="save'+numItems+'"></i></span> </h3> <div id="presContent'+numItems+'" name="presContent'+numItems+'">  <div class="col-md-8"><ul class="bingoList"> <li class="clickMe" id="clickMe'+numItems+'" name="clickMe'+numItems+'" value=""> click to add items </li> </ul></div> <div class="col-md-4"> </div> </div>';
-		$('#ovPres').append(newPres).accordion('refresh');
-		$('#presTitle'+numItems).keydown(function(e) {
-			enableSave(e);
+		newh3.find('span.presName').keydown(function(e) { // function for uri input
+			console.log('keydown');
+			enableSave(this);
 			if (e.which == 32)
 				e.preventDefault();
-			checkUriFn(this.innerText, $('#indicator'));
-		}).focus();
+			checkUriFn(this);
+		}
+		$('.presContainer:not(.template)').append(newh3,newDiv).accordion('refresh');
+		saveList.push({ uri: '', bingo: [ ] });
+		newh3.focus();
 
-		$('ul.bingoList > li.clickMe').click(function(e) { 
-			var numItems = this.parentNode.childElementCount;
-			$('ul.bingoList').prepend('<li> <span class="bingoName" contentEditable="true" id="bingoTitle'+numItems+'" name="bingoTitle'+numItems+'"> title </span>  <small>0 items</small> <span class="pull-right"><i class="fa fa-pencil-square-o editIcon"> </i> <i class="fa fa-circle activeIcon"> </i> <i class="fa fa-times-circle delIcon"> </i> </span> </li>')
-			enableSave(e);
+		$('ul.bingoList > li.clickMe').click(function(e) { // click for new bingo item in presentation list
+			console.log(this);
+
+			var itemNode = $('li.bingoItem.template').clone().removeClass('template');
+			itemNode.find('i.editIcon').click(function(e) {  // click for edit icon in new bingo item
+				var parent = this.parentNode;
+				var thisNumIndex = -1;
+				while (parent != null && parent.nodeName.toLowerCase() != 'div' && ! parent.classList.contains('containerDiv')) {
+					if (parent.nodeName.toLowerCase() == 'li') {
+						thisNumIndex = $(parent).index();
+					}
+
+					parent = parent.parentNode;
+				}
+				if (parent != null)
+					presentationIndex = $('.containerDiv').index(parent);
+
+				if (thisNumIndex != -1) {
+					var thisForm = $(parent).find('table');
+					if (! saveList[presentationIndex]) {
+						saveList[presentationIndex] = { 'uri': 'title', 'bingo': [ ] };
+					}
+					if (! saveList[presentationIndex].bingo[thisNumIndex])
+
+
+				} else console.log("couldn't find parent of "+this+'!');
+			});
+			$(this).parent().prepend(itemNode);
+
+			// enableSave(e);
 		 });
 	});
-	$(document).keypress(function(e) { console.log(e.which); if (e.which == 115) e.preventDefault(); });
+	$(document).keypress(function(e) { if (e.which == 115) e.preventDefault(); });
 });
