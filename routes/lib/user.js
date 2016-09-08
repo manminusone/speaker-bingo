@@ -39,7 +39,7 @@ module.exports = (options) => {
 
 		find: function(opts, cb) {
 			if (opts.email && opts.pwd) {
-				User.findOne({ email: opts.email }, function(err,result) {
+				User.findOne({ email: opts.email }).populate('presentations').exec(function(err,result) {
 					var errorDoc = "User not found";
 					if (result) {
 						bcrypt.compare(opts.pwd,result.hash, function(err,res) {
@@ -53,9 +53,9 @@ module.exports = (options) => {
 					}
 				);
 			} else if (opts.id) {
-				User.findById(opts.id,cb);
+				User.findById(opts.id).populate('presentations').exec(cb);
 			} else if (opts.email) {
-				User.findOne({ email: opts.email }, cb);
+				User.findOne({ email: opts.email }).populate('presentations').exec(cb);
 			} else
 				cb("Unknown call of find() method", null);
 		},

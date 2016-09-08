@@ -147,17 +147,56 @@ module.exports = (options) => {
 			res.redirect('/login');
 	});
 
+	router.post('/presentation/new', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
+			doclib.presentation.find({ uri: req.body.uri }, function(err,doc) {
+				if (doc) {
+					res.render('uri-exists', { 'title': 'New presentation', 'message': 'Your choice fora URI already exists. Try again' });
+				} else {
+					var p = doclib.presentation.new();
+					p.ownerId = req.session.userId;
+					p.uri = req.body.uri;
+					p.save(function(err,saved) {
+						if (saved) {
+							userlib.find({id: req.session.userId}, function(err,doc) {
+								doc.presentations.push(saved._id);
+								doc.save(function() {
+									res.redirect('/profile');
+								})
+							})
+						} else
+							res.redirect('/'); // FIXME
+					})
+
+				}
+			})
+		}
+	);
+
+
 	// bingo routes
-	router.get('/bingo/new', 
+
+	router.get('/bingo/:num/new',
+		userlib.isAuthenticated,
+		function(req,res,next) {
+			res.render('bingo-new', { 'title': 'New Bingo Card', 'config': config, 'presentationNum': req.params.num });
+		});
+	/*router.get('/bingo/new', 
 		userlib.isAuthenticated,
 		function(req,res,next) {
 			res.render('bingo-new', { title: 'New Bingo Session', config: config });
-	});
+	});*/
 
 	router.post('/bingo/save', 
 		userlib.isAuthenticated,
 		function(req,res,next) {
-			var choices = JSON.parse(req.body.choices);
+
+			userlib.find({id: req.session.userId}, function(err,u) {
+				var choices = JSON.parse(req.body.choices);
+				
+
+			});
 			if (req.body.bingoId) {
 				doclib.save({
 					id: req.body.bingoId,
@@ -169,20 +208,22 @@ module.exports = (options) => {
 				});
 			} else {
 				console.log('no existing id, creating new');
-				db.bingo.save({
-					presentationId: req.session.presentationId,
-					title: req.body.bingoTitle,
-					choices: choices
-				}, function(err, newdoc) {
-					req.session.bingoId.push(newdoc._id);
-					console.log('at this point (2), title = ' + newdoc.title);
-					res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices, config: config });
+				doclib.presentation.find({ownerId: req.session.userId }, function(err,preslist) {
+					db.bingo.save({
+						presentationId: preslist[,
+						title: req.body.bingoTitle,
+						choices: choices
+					}, function(err, newdoc) {
+						req.session.bingoId.push(newdoc._id);
+						console.log('at this point (2), title = ' + newdoc.title);
+						res.render('bingo-edit', { message: (err || 'Saved successfully'), bingoId: newdoc._id, bingoTitle: newdoc.title, choices: newdoc.choices, config: config });
+					});
 				});
 			}
 		}
 	);
 
-	router.get('/bingo/edit/:num', function(req,res,next) {
+	/*router.get('/bingo/edit/:num', function(req,res,next) {
 		if (req.session.presentationId) {
 			if (req.params.num >= 0 && req.params.num < req.session.bingoId.length) {
 				console.log('looking for ' + req.session.bingoId[req.params.num]);
@@ -216,7 +257,7 @@ module.exports = (options) => {
 			});
 		} else
 			res.redirect('/login');
-	});
+	});*/
 
 
 //	static pages

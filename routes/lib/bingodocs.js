@@ -8,7 +8,6 @@ module.exports = (options) => {
 		ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
 		uri: String,
 		createDate: { type: Date, default: Date.now },
-		contactEmail: String,
 		bingos: [ { type: Schema.Types.ObjectId, ref: 'Bingo' }],
 
 		testBingoId: Schema.Types.ObjectId

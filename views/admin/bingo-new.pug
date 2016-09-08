@@ -8,6 +8,7 @@ block content
 
     h2= message
     form(method="post" action="/bingo/save")
+      input(type="hidden" name="presentationNum" value=presentationNum)
       input(type="hidden" name="choices" id="choices")
       p Give me a title: 
         input(type="text" name="bingoTitle" id="bingoTitle")
