@@ -61,7 +61,7 @@ module.exports = (options) => {
 			new: function() { return new Bingo(); },
 			find: function(opts,cb) {
 				if (opts.presentationId)
-					Bingo.find({ presentationId: opts.presentationId }, cb);
+					Bingo.find({ presentationId: opts.presentationId,  }, cb);
 				else if (opts.id && Array.isArray(opts.id))
 					Bingo.find({ _id: { $in: opts.id }}, cb);
 				else if (opts.id)
@@ -74,7 +74,7 @@ module.exports = (options) => {
 					Bingo.findById(doc.id, function(err,foundDoc) {
 						console.log('-- err = ' + err + ', foundDoc = ' + foundDoc);
 						if (err)
-							cb({ error: err });
+							cb(err);
 						else {
 							if (doc.title) foundDoc.title = doc.title;
 							if (doc.choices) foundDoc.choices = doc.choices;

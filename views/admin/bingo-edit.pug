@@ -9,9 +9,9 @@ block content
     h2= message
     form(method="post" action="/bingo/save")
       input(type="hidden" name="choices" id="choices")
-      input(type="hidden" name="bingoId" value=bingoId)
+      input(type="hidden" name="bingoId" value=bingo._id)
       p Your bingo title: 
-        input(type="text" name="bingoTitle" id="bingoTitle" value=bingoTitle)
+        input(type="text" name="bingoTitle" id="bingoTitle" value=bingo.title)
       p Start entering your choices in this text box:
         br
         input(type="text" name="bingoEntry" id="bingoEntry")
@@ -20,14 +20,14 @@ block content
         ul(class="bingoList" id="bingoList" name="bingoList")
 
         // add any existing items via script, to avoid a bug leaving unwanted space when items are removed
-        - if (choices && choices.length > 0)
+        - if (bingo.choices && bingo.choices.length > 0)
           script
-            - for (var t=0;t < choices.length; ++t)
-              | addBingoItem("#{choices[t]}");
+            - for (var t=0;t < bingo.choices.length; ++t)
+              | addBingoItem("#{bingo.choices[t]}");
 
       p And when you're ready,
         input(type="submit" id="submitButton" name="submitButton" value="click to continue")
 
       p ...or 
-        a(href="/overview") back to the overview
+        a(href="/profile") back to your profile
     

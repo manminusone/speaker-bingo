@@ -34,9 +34,33 @@ block content
               table(style="width: 100%")
                 tr
                   td(style="width: 50%")
-                    h2 /#{user.presentations[iter].uri}
+                    h2 /#{user.presentations[iter].uri}  
+                      a(class="btn btn-primary" target="_blank" href=(config.port == 443 ? 'https://' : 'http://') + config.vhost.uriDomain + (config.port == 443 || config.port == 80 ? '' : ':' + config.port) + '/' + user.presentations[iter].uri)
+                        i(class="fa fa-share-square-o")
+                        |  View on mobile site
                   td
-                    a(href="/bingo/"+(iter+1)+'/new' class="btn btn-primary") 
+                    - for (var i2 = 0; i2 < user.presentations[iter].bingos.length; ++i2) {
+                      - var thisitem = user.presentations[iter].bingos[i2];
+                      div(class="bingoDiv")
+                        p #{thisitem.title}  
+                          small #{thisitem.choices.length} items
+                          span(class="pull-right")
+                            a(href="/bingo/edit?q="+thisitem._id)
+                              i(class="fa fa-pencil-square-o fa-edit-icon")
+                            | 
+                            - if (thisitem.id == user.presentations[iter].testBingoId)  {
+                              a(href="/bingo/test?q="+thisitem._id)
+                                i(class="fa fa-check-circle fa-test-icon")
+                            - } else { 
+                              a(href="/bingo/test?q="+thisitem._id)
+                                i(class="fa fa-circle fa-test-icon")
+                            - }
+                            | 
+                            a(href="#") 
+                              i(class="fa fa-trash fa-delete-icon")
+
+                    - }
+                    a(href="/bingo/"+iter+'/new' class="btn btn-primary") 
                       i(class="fa fa-plus-circle")
                       |  Add item
 

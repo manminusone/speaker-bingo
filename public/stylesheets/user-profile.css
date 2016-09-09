@@ -2,4 +2,15 @@
 .nice-table  th { padding-right: 24px; }
 .nice-table input { color: #000; }
 
-.presentationDiv { width: 80%; background: #ccf; color: #003; border: 3px solid black; padding: 8px;  }
+.presentationDiv { width: 80%; background: #eef; color: #003; border: 3px solid black; padding: 8px;  }
+.bingoDiv { background: #336; color: #fff; padding: 4px 8px 4px 8px; border: 3px solid #99f; font-size: 200%; font-weight: bold; border-radius: 8px; margin-bottom: 16px; }
+.bingoDiv small { font-size: 50%; font-style: oblique; }
+
+.fa-edit-icon { color: #ccf; }
+.fa-edit-icon:hover { color: #00f; cursor: pointer; }
+
+.fa-test-icon { color: #cfc; }
+.fa-test-icon:hover { color: #0f0; cursor: pointer; }
+
+.fa-delete-icon { color: #fcc; }
+.fa-delete-icon:hover { color: #f00; cursor: pointer; }

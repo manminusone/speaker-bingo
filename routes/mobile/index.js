@@ -4,17 +4,23 @@
 module.exports = (options) => {
 	var express = require('express');
 	var router = express.Router();
-	var db = options.db;
+	var config = options.config;
+	var userlib = options.userlib;
+	var doclib = options.doclib;
 
 	router.get('/', function(req,res,next) {
 		res.render('index', { title: 'URI hell', message: ''});
 	});
 
 	router.get('/:uri', function(req,res,next) {
-		db.presentation.findByUriNoPwd(req.params.uri, function(err,presentation) {
+		doclib.presentation.find(
+		 { 'uri': req.params.uri }, 
+		 function(err,presentation) {
 			if (presentation) {
 				if(presentation.testBingoId) {
-					db.bingo.findById(presentation.testBingoId, function(err,bingoDoc) {
+					doclib.bingo.find(
+					 { 'id': presentation.testBingoId }, 
+					 function(err,bingoDoc) {
 						var thesechoices = Array(), tmp = bingoDoc.choices;
 						while (thesechoices.length < 24 && tmp.length > 0) {
 							var thisone;
