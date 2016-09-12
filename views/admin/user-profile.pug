@@ -49,8 +49,8 @@ block content
                               i(class="fa fa-pencil-square-o fa-edit-icon")
                             | 
                             - if (thisitem.id == user.presentations[iter].testBingoId)  {
-                              a(href="/bingo/test?q="+thisitem._id)
-                                i(class="fa fa-check-circle fa-test-icon")
+                              a(href="/bingo/test/off")
+                                i(class="fa fa-check-circle fa-testing-icon")
                             - } else { 
                               a(href="/bingo/test?q="+thisitem._id)
                                 i(class="fa fa-circle fa-test-icon")
