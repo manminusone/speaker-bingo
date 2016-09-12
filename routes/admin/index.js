@@ -10,6 +10,7 @@ module.exports = (options) => {
 	var userlib = options.userlib;
 	var doclib = options.doclib;
 	var mailer = options.mailer;
+	var log = options.log;
 
 	// home page
 	router.get('/', function(req, res, next) {
@@ -43,7 +44,7 @@ module.exports = (options) => {
 								},
 								function(err) {
 									if (err) {
-										console.log(err);
+										log.info(err);
 										res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
 									}
 									res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
@@ -73,7 +74,7 @@ module.exports = (options) => {
 							},
 							function(err) {
 								if (err) {
-									console.log(err);
+									log.info(err);
 									res.render('message', { 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
 								}
 								res.render('message', { 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
@@ -104,7 +105,7 @@ module.exports = (options) => {
 	})
 	router.post('/login', function(req,res,next) {
 		userlib.find({ 'email': req.body.email, 'pwd': req.body.pwd }, function(err,doc) {
-			console.log('doc = '+JSON.stringify(doc));
+			log.info('doc = '+JSON.stringify(doc));
 			if (err)
 				res.render('user-login', { title: 'Login', message: err, config: config, email: req.body.email });
 			else {
@@ -122,7 +123,7 @@ module.exports = (options) => {
 		userlib.find({ 'id': req.session.userId }, function(err,u) {
 			var uris = Array();
 			if (!err && u) {
-				console.log(JSON.stringify(u));
+				log.info(u);
 				res.render('user-profile', { config: config, user: u, gravatar: gravatar.url(u.email) });
 			} else
 				res.redirect('/login');
@@ -194,7 +195,7 @@ module.exports = (options) => {
 
 			var choices = JSON.parse(req.body.choices);
 			var pid = req.body.presentationNum;
-			console.log('-- pid = ' + pid);
+			log.info('-- pid = ' + pid);
 
 			userlib.find({id: req.session.userId}, function(err,u) {
 				if(req.body.bingoId) {
@@ -210,7 +211,7 @@ module.exports = (options) => {
 							config: config });
 					});
 				} else {
-					console.log('no existing id, creating new');
+					log.info('no existing id, creating new');
 					doclib.bingo.save({
 						presentationId: u.presentations[pid]._id,
 						title: req.body.bingoTitle,
@@ -288,7 +289,7 @@ module.exports = (options) => {
 	router.get('/bingo/test/:num', function(req,res,next) {
 		if (req.session.presentationId) {
 			if (req.params.num >= 0 && req.params.num < req.session.bingoId.length) {
-				console.log('- attempting to set ' + req.session.presentationId + ',' + req.session.bingoId[req.params.num]);
+				log.info('- attempting to set ' + req.session.presentationId + ',' + req.session.bingoId[req.params.num]);
 				db.presentation.save({ _id: req.session.presentationId, testBingoId: req.session.bingoId[req.params.num] }, function(err) {
 					res.redirect('/overview');
 				});
@@ -326,7 +327,7 @@ module.exports = (options) => {
 			rawSubject: req.body.subject,
 			message: req.body.message
 		}, function(err) {
-			if (err) { console.log('err when sending email: ' + err); }
+			if (err) { log.info('err when sending email: ' + err); }
 			res.render('contact-thanks', { title: 'Contact us', tabChoice: 'contact', config: config });
 		});
 	})
