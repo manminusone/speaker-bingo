@@ -3,11 +3,11 @@
 .nice-table input { color: #000; }
 
 .presentationDiv { width: 80%; background: #eef; color: #003; border: 3px solid black; padding: 8px;  }
-.bingoDiv { background: #336; color: #fff; padding: 4px 8px 4px 8px; border: 3px solid #99f; font-size: 200%; font-weight: bold; border-radius: 8px; margin-bottom: 16px; }
+.bingoDiv { background: #669; color: #fff; padding: 4px 8px 4px 8px; border: 3px solid #99f; font-size: 200%; font-weight: bold; border-radius: 8px; margin-bottom: 16px; }
 .bingoDiv small { font-size: 50%; font-style: oblique; }
 
 .fa-edit-icon { color: #ccf; }
-.fa-edit-icon:hover { color: #00f; cursor: pointer; }
+.fa-edit-icon:hover { color: #33f; cursor: pointer; }
 
 .fa-test-icon { color: #cfc; }
 .fa-testing-icon { color: #0f0; }
@@ -15,3 +15,6 @@
 
 .fa-delete-icon { color: #fcc; }
 .fa-delete-icon:hover { color: #f00; cursor: pointer; }
+
+.fa-turnon-icon,.fa-turnon-icon-disabled { color: #999; }
+.fa-turnon-icon:hover { color: #fff; cursor: pointer; }

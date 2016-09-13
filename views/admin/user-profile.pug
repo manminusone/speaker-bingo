@@ -36,7 +36,7 @@ block content
                   td(style="width: 50%")
                     h2 /#{user.presentations[iter].uri}  
                       a(class="btn btn-primary" target="_blank" href=(config.port == 443 ? 'https://' : 'http://') + config.vhost.uriDomain + (config.port == 443 || config.port == 80 ? '' : ':' + config.port) + '/' + user.presentations[iter].uri)
-                        i(class="fa fa-share-square-o")
+                        i(class="fa fa-share-square-o" title="View on mobile site")
                         |  View on mobile site
                   td
                     - for (var i2 = 0; i2 < user.presentations[iter].bingos.length; ++i2) {
@@ -46,18 +46,25 @@ block content
                           small #{thisitem.choices.length} items
                           span(class="pull-right")
                             a(href="/bingo/edit?q="+thisitem._id)
-                              i(class="fa fa-pencil-square-o fa-edit-icon")
+                              i(class="fa fa-pencil-square-o fa-edit-icon" title="Click to edit")
                             | 
                             - if (thisitem.id == user.presentations[iter].testBingoId)  {
                               a(href="/bingo/test/off")
-                                i(class="fa fa-check-circle fa-testing-icon")
+                                i(class="fa fa-check-circle fa-testing-icon" title="Click to stop testing")
                             - } else { 
                               a(href="/bingo/test?q="+thisitem._id)
-                                i(class="fa fa-circle fa-test-icon")
+                                i(class="fa fa-circle fa-test-icon" title="Click to start testing")
                             - }
                             | 
+                            - if (thisitem.choices.length >= 24) {
+                              a(href="/bingo/activate?q="+thisitem._id)
+                                i(class="fa fa-power-off fa-turnon-icon" title="Click to activate")
+                            - } else {
+                              i(class="fa fa-power-off fa-turnon-icon-disabled" disabled="disabled" title="Add more items for activation")
+                            - }
+                            |  
                             a(href="#") 
-                              i(class="fa fa-trash fa-delete-icon")
+                              i(class="fa fa-trash fa-delete-icon" title="Click to delete")
 
                     - }
                     a(href="/bingo/"+iter+'/new' class="btn btn-primary") 

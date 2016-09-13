@@ -10,7 +10,8 @@ module.exports = (options) => {
 		createDate: { type: Date, default: Date.now },
 		bingos: [ { type: Schema.Types.ObjectId, ref: 'Bingo' }],
 
-		testBingoId: Schema.Types.ObjectId
+		testBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' },
+		activeBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' }
 	}),
 		Presentation = mongoose.model('Presentation', PresentationSchema);
 

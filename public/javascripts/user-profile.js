@@ -19,4 +19,8 @@ $(document).ready(function() {
 		});
 	});
 	$('#createPresentationButton').click(function() { document.forms[0].submit() });
+
+	$('.fa-turnon-icon').click(function() {
+		return confirm("Confirm that you want to start this session");
+	});
 });

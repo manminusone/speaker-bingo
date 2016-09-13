@@ -285,6 +285,31 @@ module.exports = (options) => {
 		}
 	);
 
+	router.get('/bingo/activate', 
+		userlib.isAuthenticated,
+		function(req,res,next) {
+			if (req.query.q) {
+				userlib.find({ id: req.session.userId }, function(err,u) {
+					if (u) {
+						var rendered = 0;
+						for (var i = 0; i < u.presentations.length; ++i)
+							for (var j = 0; i < u.presentations[i].bingos.length; ++j) {
+								if (u.presentations[i].bingos[j].id == req.query.q) {
+									u.presentations[i].activeBingoId = u.presentations[i].bingos[j]._id;
+									u.presentations[i].save(function() { res.redirect('/profile'); });
+									rendered = 1;
+									break;
+								}
+							}
+						if (! rendered) 
+							res.render('message', { message: "You tried to access a nonexistent bingo card." });
+					}
+				});
+			} else
+				res.redirect('/');
+		}
+	);
+
 	/*
 	router.get('/bingo/test/:num', function(req,res,next) {
 		if (req.session.presentationId) {
