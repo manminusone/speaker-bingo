@@ -31,21 +31,33 @@ html
           a(class="navbar-brand" href="/") speaker bingo
 
         div(class="collapse navbar-collapse" id="mainmenu-1")
-          - var homeClass = '', aboutClass = '', tosClass = '', contactClass = '';
+          - var homeClass = '', aboutClass = '', tosClass = '', contactClass = '', profileClass='', accountClass='';
           - if (tabChoice == 'about') aboutClass = 'active';
           - else if (tabChoice == 'tos') tosClass = 'active';
           - else if (tabChoice == 'contact') contactClass = 'active';
+          - else if (tabChoice == 'profile') profileClass = 'active';
+          - else if (tabChoice == 'account') accountClass = 'active';
           - else homeClass = 'active';
           ul(class="nav navbar-nav navbar-right")
             li(class=homeClass)
               a(href="/") Home
+            - if (user) {
+              li(class=profileClass)
+                a(href="/profile") Profile 
+            - }
             li(class=aboutClass)
               a(href="/static/about") About
             li(class=tosClass)
               a(href="/static/tos") TOS
             li(class=contactClass)
               a(href="/static/contact") Contact
-
+            - if (user) {
+              li(class=accountClass)
+                a(href="/logout") Logout
+            - } else {
+              li(class=accountClass)
+                a(href="/login") Login
+            - }
 
     block content
 

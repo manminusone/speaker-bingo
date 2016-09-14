@@ -35,7 +35,18 @@ module.exports = (options) => {
 
 	return {
 		new: function() { return new User(); },
-		isAuthenticated: function(req,res,next) { if (! req.session.userId) { res.redirect('/login'); } else { next(); } },
+		isAuthenticated: function(req,res,next) { 
+			if (! req.session.userId) { 
+				res.redirect('/login'); 
+			} else if (!req.session.user) {
+				User.findById(req.session.userId).populate({ path: 'presentations', 'populate': { 'path': 'bingos' } }).exec(function(err,u) {
+					if (u)
+						req.session.user = u;
+					next();
+				});
+			} else
+				next(); 
+		},
 
 		find: function(opts, cb) {
 			if (opts.email && opts.pwd) {
