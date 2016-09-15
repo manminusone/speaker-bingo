@@ -6,9 +6,12 @@ module.exports = (options) => {
 	var PresentationSchema = new Schema({
 		ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
 		uri: String,
+		creationDate: { type: Date, default: Date.now },
+
 		bingos: [ { type: Schema.Types.ObjectId, ref: 'Bingo' }],
 
 		status: Number,
+		testBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' },
 		activeBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' }
 
 	})

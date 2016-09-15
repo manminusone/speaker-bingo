@@ -38,9 +38,9 @@ block content
                       a(class="btn btn-primary" target="_blank" href=(config.port == 443 ? 'https://' : 'http://') + config.vhost.uriDomain + (config.port == 443 || config.port == 80 ? '' : ':' + config.port) + '/' + user.presentations[iter].uri)
                         i(class="fa fa-share-square-o" title="View on mobile site")
                         |  View on mobile site
-                    p 
+                    p                     
                       strong Created: 
-                      date(class="niceDate")= user.presentations[iter].createDate
+                      date(class="niceDate")= user.presentations[iter].creationDate
 
                     - if (user.presentations[iter].activeBingoId) {
                       h1 THIS IS LIVE!
@@ -55,7 +55,7 @@ block content
                             a(href="/bingo/edit?q="+thisitem._id)
                               i(class="fa fa-pencil-square-o fa-edit-icon" title="Click to edit")
                             | 
-                            - if (thisitem.id == user.presentations[iter].testBingoId)  {
+                            - if (thisitem._id == user.presentations[iter].testBingoId)  {
                               a(href="/bingo/test/off")
                                 i(class="fa fa-check-circle fa-testing-icon" title="Click to stop testing")
                             - } else { 

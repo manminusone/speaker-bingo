@@ -128,7 +128,7 @@ module.exports = (options) => {
 	router.get('/profile', 
 		userlib.isAuthenticated,
 		function(req,res,next) {
-			console.log(req.session.user);
+			console.log('--> ' + JSON.stringify(req.session.user));
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
 	);
@@ -176,38 +176,39 @@ module.exports = (options) => {
 
 			var choices = JSON.parse(req.body.choices);
 			var pid = req.body.presentationNum;
+			var u = req.session.user;
+			req.session.user = null;
 
-				if(req.body.bingoId) {
-					doclib.bingo.save({
-						id: req.body.bingoId,
-						title: req.body.bingoTitle,
-						choices: choices
-					}, function(err,savedBingo) {
-						res.render('bingo-edit', { 
-							message: (err || 'Saved successfully'), 
-							user: req.session.user,
-							bingo: savedBingo,
-							config: config });
-					});
-				} else {
-					doclib.bingo.save({
-						presentationId: u.presentations[pid]._id,
-						title: req.body.bingoTitle,
-						choices: choices
-					}, function(err,newBingo) {
-						var u = req.session.user;
-						u.presentations[pid].bingos.push(newBingo._id);
-						u.presentations[pid].save(function(err,newdoc,numSaved) {
-							res.render('bingo-edit', {
-								message: (err || 'Saved successfully'),
-								user: u,
-								bingo: newBingo,
-								config: config
-							});
+			if(req.body.bingoId) {
+				doclib.bingo.save({
+					id: req.body.bingoId,
+					title: req.body.bingoTitle,
+					choices: choices
+				}, function(err,savedBingo) {
+					res.render('bingo-edit', { 
+						message: (err || 'Saved successfully'), 
+						user: u,
+						bingo: savedBingo,
+						config: config });
+				});
+			} else {
+				doclib.bingo.save({
+					presentationId: u.presentations[pid]._id,
+					title: req.body.bingoTitle,
+					choices: choices
+				}, function(err,newBingo) {
+					u.presentations[pid].bingos.push(newBingo._id);
+					doclib.presentation.save(u.presentations[pid], function(err,newdoc,numSaved) {
+						res.render('bingo-edit', {
+							message: (err || 'Saved successfully'),
+							user: u,
+							bingo: newBingo,
+							config: config
 						});
 					});
+				});
 
-				} // else
+			} // else
 		} // middleware function
 	); // post()
 
@@ -246,7 +247,7 @@ module.exports = (options) => {
 					for (var j = 0; j < u.presentations[i].bingos.length; ++j) {
 						if (u.presentations[i].bingos[j]._id == req.query.q) {
 							u.presentations[i].testBingoId = u.presentations[i].bingos[j]._id;
-							u.presentations[i].save(function() { res.redirect('/profile'); });
+							doclib.presentation.save(u.presentations[i], function() { res.redirect('/profile') });
 							rendered = 1;
 							break;
 						}
@@ -261,14 +262,14 @@ module.exports = (options) => {
 	router.get('/bingo/activate', 
 		userlib.isAuthenticated,
 		function(req,res,next) {
-			var u = req.session.user;
+			var u = req.session.user;			
 			if (req.query.q) {
 				var rendered = 0;
 				for (var i = 0; i < u.presentations.length; ++i)
 					for (var j = 0; i < u.presentations[i].bingos.length; ++j) {
 						if (u.presentations[i].bingos[j].id == req.query.q) {
 							u.presentations[i].activeBingoId = u.presentations[i].bingos[j]._id;
-							u.presentations[i].save(function() { res.redirect('/profile'); });
+							doclib.presentation.save(u.presentations[i], function() { res.redirect('/profile'); });
 							rendered = 1;
 							break;
 						}
