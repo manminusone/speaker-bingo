@@ -2,23 +2,21 @@ module.exports = (options) => {
 	var config = options.config;
 	var mongoose = options.mongoose;
 	var Schema = mongoose.Schema;
-
 //	bingo schemas
 	var PresentationSchema = new Schema({
 		ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
 		uri: String,
-		createDate: { type: Date, default: Date.now },
 		bingos: [ { type: Schema.Types.ObjectId, ref: 'Bingo' }],
 
-		testBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' },
+		status: Number,
 		activeBingoId: { type: Schema.Types.ObjectId, ref: 'Bingo' }
-	}),
+
+	})
 		Presentation = mongoose.model('Presentation', PresentationSchema);
 
+
 	var BingoSchema = new Schema({
-		presentationId: { type: Schema.Types.ObjectId, ref: 'Presentation' },
 		title: String,
-		createDate: { type: Date, default: Date.now },
 		choices: [String]
 	}),
 		Bingo = mongoose.model('Bingo',BingoSchema);
@@ -28,6 +26,7 @@ module.exports = (options) => {
 		choices: [String]
 	}),
 		Card = mongoose.model('Card',CardSchema);
+
 
 	return {
 		presentation: {
@@ -62,11 +61,11 @@ module.exports = (options) => {
 			new: function() { return new Bingo(); },
 			find: function(opts,cb) {
 				if (opts.presentationId)
-					Bingo.find({ presentationId: opts.presentationId,  }, cb);
+					Bingo.find({ presentationId: opts.presentationId }).exec(cb);
 				else if (opts.id && Array.isArray(opts.id))
-					Bingo.find({ _id: { $in: opts.id }}, cb);
+					Bingo.find({ _id: { $in: opts.id }}).exec(cb);
 				else if (opts.id)
-					Bingo.findById(opts.id, cb);
+					Bingo.findById(opts.id).exec(cb);
 				else
 					cb('Unknown call of find()', null);
 			},
@@ -88,6 +87,5 @@ module.exports = (options) => {
 				}
 			}
 		}
-
 	};
 };

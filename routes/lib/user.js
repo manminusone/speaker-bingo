@@ -32,7 +32,6 @@ module.exports = (options) => {
 		ActivationCode = mongoose.model('ActivationCode',ActivationCodeSchema);
 
 
-
 	return {
 		new: function() { return new User(); },
 		isAuthenticated: function(req,res,next) { 

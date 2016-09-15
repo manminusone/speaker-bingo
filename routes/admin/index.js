@@ -44,7 +44,7 @@ module.exports = (options) => {
 						ac.save(function(err) {
 							mailer.send('email/activation',
 								{
-									'to': product.email,
+									'to': pproduct.email,
 									'from': config.mailer.from,
 									'subject': 'Speaker Bingo - activation',
 									'activation': ac,
@@ -128,6 +128,7 @@ module.exports = (options) => {
 	router.get('/profile', 
 		userlib.isAuthenticated,
 		function(req,res,next) {
+			console.log(req.session.user);
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
 	);
@@ -146,7 +147,8 @@ module.exports = (options) => {
 						if (saved) {
 							userlib.find({id: req.session.userId}, function(err,doc) {
 								doc.presentations.push(saved._id);
-								doc.save(function() {
+								doc.save(function(err,newUser) {
+									req.session.user = null;
 									res.redirect('/profile');
 								})
 							})
