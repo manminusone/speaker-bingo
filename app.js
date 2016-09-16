@@ -19,6 +19,7 @@ var log = bunyan.createLogger({
 	'req' : bunyan.stdSerializers.req,
 	'res' : bunyan.stdSerializers.res
 });
+config.log = log;
 
 // requires with configs
 mongoose.connect(config.mongodb.uri);
@@ -27,11 +28,17 @@ var mongoStore = require('connect-mongo')(session);
 
 var app = express(), adminApp = express(), mobileApp = express();
 
-// library objects that may be used in multiple routes/libs
-// var db = require('./routes/lib/db')({ 'mongoose': mongoose, 'log': log });
-var userlib = require('./routes/lib/user')( { 'config': config, 'mongoose': mongoose, 'log': log } );
-var doclib = require('./routes/lib/bingodocs')( { 'config': config, 'mongoose': mongoose, 'log': log });
+var schema = require('./routes/schema');
 
+// set up db models that can be used in subsequent functions
+app.use(function(req,res,next) {
+
+  req.db.User = mongoose.mode('User',schema.UserSchema);
+  req.db.Presentation = mongoose.model('Presentation', schema.PresentationSchema);
+  req.db.Bingo = mongoose.model('Bingo', schema.BingoSchema);
+  req.db.Audit = mongoose.model('Audit', schema.AuditSchema);
+  next();
+});
 
 
 // --- admin site setup ---
@@ -41,8 +48,9 @@ adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
 // console.log('setting up mailer - ' + JSON.stringify( config.mailer));
 mailer.extend(adminApp, config.mailer);
+config.mailer = mailer;
 
-var adminRoutes = require('./routes/admin/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib, 'mailer': adminApp.mailer, 'log': log });
+var adminRoutes = require('./routes/admin/index')({ 'config': config });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -62,7 +70,7 @@ adminApp.use(session({
 }));
 
 // --- api setup ---
-var apiRoutes = require('./routes/api/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib, 'log': log });
+var apiRoutes = require('./routes/api/index')({ 'config': config });
 
 
 
@@ -110,7 +118,7 @@ app.use(vhost(config.vhost.adminDomain, adminApp));
 mobileApp.set('views', path.join(__dirname, 'views/uri'));
 mobileApp.set('view engine', 'pug');
 
-var mobileRoutes = require('./routes/mobile/index')({ 'config': config, 'userlib': userlib, 'doclib': doclib, 'log': log });
+var mobileRoutes = require('./routes/mobile/index')({ 'config': config });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

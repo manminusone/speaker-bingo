@@ -2,11 +2,11 @@
 // admin site routes
 
 module.exports = (options) => {
+	var config = options.config;
 
 	var express = require('express');
 	var gravatar = require('gravatar');
 	var router = express.Router();
-	var config = options.config;
 	var userlib = options.userlib;
 	var doclib = options.doclib;
 	var mailer = options.mailer;
@@ -14,8 +14,9 @@ module.exports = (options) => {
 
 	// home page
 	router.get('/', function(req, res, next) {
-		if (req.session.userId)
-			userlib.find({ id: req.session.userId}, function(err,u) {
+		var User = req.db.User;
+		if (req.session.userId)			
+			User.findById(req.session.userId, function(err,u) {
 				res.render('index', { title: 'Speaker Bingo', config: config, user: u });
 			})
 		else
@@ -31,12 +32,14 @@ module.exports = (options) => {
 			res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: '', config: config });
 	});
 	router.post('/signup', function(req,res,next) {
+		var User = req.db.User;
 
-		userlib.find({ email: req.body.email }, function(err,userRec) {
+		User.findOne({ email: req.body.email }).exec(function(err,userRec) {
 			if (userRec)
 				res.render('user-signup', { title: 'Sign up', message: 'Email already exists', email: req.body.email, config: config });
-			else
-				userlib.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
+			else {
+				var u = new User({ email: req.body.email, })
+				User.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
 					if (err) {
 						res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
 					} else {
@@ -61,6 +64,7 @@ module.exports = (options) => {
 						});
 					}
 				});
+			}
 		});
 	});
 
