@@ -3,14 +3,26 @@
 
 module.exports = (options) => {
 	var config = options.config;
+	var mailer = options.mailer;
+	var log = options.log;
 
 	var express = require('express');
 	var gravatar = require('gravatar');
+	var bcrypt = require('bcrypt');
+	var md5 = require('md5');
+
 	var router = express.Router();
-	var userlib = options.userlib;
-	var doclib = options.doclib;
-	var mailer = options.mailer;
-	var log = options.log;
+
+	var isLoggedIn = function(req,res,next) {
+		var User = req.db.User;
+		if (req.session.userId) {
+			User.findById(req.session.userId).populate({ path: 'presentation', populate { path: 'bingo', populate: 'audit'}}).exec(function(err,u) {
+				if (u) req.session.user = u;
+				next();
+			});
+		} else
+			res.redirect('/login');
+	};
 
 	// home page
 	router.get('/', function(req, res, next) {
@@ -38,16 +50,54 @@ module.exports = (options) => {
 			if (userRec)
 				res.render('user-signup', { title: 'Sign up', message: 'Email already exists', email: req.body.email, config: config });
 			else {
-				var u = new User({ email: req.body.email, })
-				User.save({ email: req.body.email, pwd: req.body.pwd }, function(err,product,numAffected) {
-					if (err) {
-						res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
-					} else {
-						var ac = userlib.activation.new(product);
-						ac.save(function(err) {
+				var millis = new Date().getMilliseconds();
+				var u = new User({ email: req.body.email, prop: { 'authenticated': false, 'admin': false, 'authHash': md5(req.body.email + ' '+millis.toString()) } });
+				bcrypt.hash(req.body.pwd, 10, function(err,hash) {
+					if (hash) {
+						u.hash = hash;
+						u.save(function(err,updatedUser,numAffected) {
+							if (err) {
+								res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
+							} else {
+								mailer.send('email/activation',
+									{
+										'to': updatedUser.email,
+										'from': config.mailer.from,
+										'subject': 'Speaker Bingo - activation',
+										'hash': updatedUser.prop.authHash,
+										'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
+									},
+									function(err) {
+										if (err) {
+											log.info(err);
+											res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+										}
+										res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+									}
+								);
+							}
+						});						
+					}
+				});
+
+			}
+		});
+	});
+
+	router.get('/activation', 
+		isLoggedIn,
+		function(req,res,next) {
+			var User = req.db.User;
+			if (req.session.userId)
+				User.findById(req.session.userId).exec(function(err,product) {
+					if (product) {
+						var millis = new Date().getMilliseconds();
+						product.prop.authHash = md5(product.email + ' ' + millis.toString());
+						product.markModified('prop');
+						product.save(function(err) {
 							mailer.send('email/activation',
 								{
-									'to': pproduct.email,
+									'to': product.email,
 									'from': config.mailer.from,
 									'subject': 'Speaker Bingo - activation',
 									'activation': ac,
@@ -58,53 +108,30 @@ module.exports = (options) => {
 										log.info(err);
 										res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
 									}
-									res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+									res.render('message', { 'tabChoice': account, 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
 								}
 							);
 						});
-					}
+					} else
+						res.redirect('/');
 				});
-			}
-		});
-	});
-
-	router.get('/activation', 
-		userlib.isAuthenticated,
-		function(req,res,next) {
-		if (req.session.userId)
-			userlib.find({ 'id': req.session.userId }, function(err,product) {
-				if (product) {
-					var ac = userlib.activation.new(product);
-					ac.save(function(err) {
-						mailer.send('email/activation',
-							{
-								'to': product.email,
-								'from': config.mailer.from,
-								'subject': 'Speaker Bingo - activation',
-								'activation': ac,
-								'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
-							},
-							function(err) {
-								if (err) {
-									log.info(err);
-									res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
-								}
-								res.render('message', { 'tabChoice': account, 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
-							}
-						);
-					})
-				} else
-					res.redirect('/');
-			});
 		else
 			res.redirect('/');
 		
 	});
 	router.get('/activate', function(req,res,next) {
+		var User = req.db.user;
 		if (req.query.q) {
-			userlib.activation.activate(req.query.q, function(err,doc) {
-				res.render('message', { 'tabChoice': 'account', 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
-			});
+			User.findOne({ 'prop.authHash': req.query.q}).exec(function(err,u) {
+				if (u) {
+					u.prop.authHash = null;
+					u.prop.authenticated = true;
+					u.markModified('prop');
+					u.save(function(err,newU) {
+						res.render('message', { 'tabChoice': 'account', 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
+					})
+				}
+			})
 		}
 	});
 
@@ -116,21 +143,21 @@ module.exports = (options) => {
 		req.session.destroy(function() { res.redirect('/'); });
 	})
 	router.post('/login', function(req,res,next) {
-		userlib.find({ 'email': req.body.email, 'pwd': req.body.pwd }, function(err,doc) {
-			log.info('doc = '+JSON.stringify(doc));
-			if (err)
-				res.render('user-login', {  'tabChoice': 'account', title: 'Login', message: err, config: config, email: req.body.email });
-			else {
-				req.session.userId = doc._id;
-				req.session.presentationId = '';
-				req.session.bingoId = '';
-				res.redirect('/profile');
-			}
+		var User = req.db.User;
+		User.findOne({ 'email': req.body.email}).exec(function(err,doc) {
+			if (doc) 
+				bcrypt.compare(req.body.pwd, doc.hash, function(err,res) {
+					if (res) {
+						req.session.userId = doc._id;
+						res.redirect('/profile');
+					} else
+						res.render('user-login', {  'tabChoice': 'account', title: 'Login', message: err || 'Account not found', config: config, email: req.body.email });
+				});
 		});
 	});
 
 	router.get('/profile', 
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 			console.log('--> ' + JSON.stringify(req.session.user));
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
@@ -138,30 +165,23 @@ module.exports = (options) => {
 	);
 
 	router.post('/presentation/new', 
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
-			doclib.presentation.find({ uri: req.body.uri }, function(err,doc) {
+			var Presentation = req.db.Presentation;
+
+			Presentation.find({ uri: req.body.uri }).exec(function(err,doc) {
 				if (doc) {
 					res.render('uri-exists', { 'title': 'New presentation', 'message': 'Your choice fora URI already exists. Try again', 'user': req.session.user });
 				} else {
-					var p = doclib.presentation.new();
-					p.ownerId = req.session.userId;
-					p.uri = req.body.uri;
-					p.save(function(err,saved) {
-						if (saved) {
-							userlib.find({id: req.session.userId}, function(err,doc) {
-								doc.presentations.push(saved._id);
-								doc.save(function(err,newUser) {
-									req.session.user = null;
-									res.redirect('/profile');
-								})
-							})
-						} else
-							res.redirect('/'); // FIXME
-					})
-
+					var p = Presentation.new({ uri: req.body.uri });
+					p.save(function(err,newP) {
+						req.session.user.presentation.push(newP);
+						req.session.user.save(function(err,savedUser) {
+							res.redirect('/profile');
+						});
+					});
 				}
-			})
+			});
 		}
 	);
 
@@ -169,31 +189,32 @@ module.exports = (options) => {
 	// bingo routes
 
 	router.get('/bingo/:num/new',
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 			res.render('bingo-new', { 'title': 'New Bingo Card', 'config': config, 'presentationNum': req.params.num, 'user': req.session.user });
 		});
 
 	router.post('/bingo/save', 
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 
 			var choices = JSON.parse(req.body.choices);
 			var pid = req.body.presentationNum;
 			var u = req.session.user;
+			var Bingo = req.db.Bingo;
 			req.session.user = null;
 
 			if(req.body.bingoId) {
-				doclib.bingo.save({
-					id: req.body.bingoId,
-					title: req.body.bingoTitle,
-					choices: choices
-				}, function(err,savedBingo) {
-					res.render('bingo-edit', { 
-						message: (err || 'Saved successfully'), 
-						user: u,
-						bingo: savedBingo,
-						config: config });
+				Bingo.findById(req.body.bingoId, function(err,doc) {
+					doc.title = req.body.bingoTitle;
+					doc.choices = choices;
+					doc.save(function(err,savedBingo) {
+						res.render('bingo-edit', { 
+							message: (err || 'Saved successfully'), 
+							user: u,
+							bingo: savedBingo,
+							config: config });
+					});
 				});
 			} else {
 				doclib.bingo.save({

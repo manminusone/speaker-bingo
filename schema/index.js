@@ -8,6 +8,7 @@ exports.UserSchema = new Schema({
 	presentation: [ { type: Schema.Types.ObjectId, ref: 'Presentation' }],
 	audit: [ { type: Schema.Types.ObjectId, ref: 'Audit' }]
 });
+
 exports.PresentationSchema = new Schema({
 	uri: String,
 	bingo: [ { type: Schema.Types.ObjectId, ref: 'Bingo' }],
