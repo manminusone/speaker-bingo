@@ -28,12 +28,15 @@ var mongoStore = require('connect-mongo')(session);
 
 var app = express(), adminApp = express(), mobileApp = express();
 
-var schema = require('./routes/schema');
+var schema = require('./schema');
 
 // set up db models that can be used in subsequent functions
 app.use(function(req,res,next) {
 
-  req.db.User = mongoose.mode('User',schema.UserSchema);
+  req.mailer = mailer;
+
+  req.db = {};
+  req.db.User = mongoose.model('User',schema.UserSchema);
   req.db.Presentation = mongoose.model('Presentation', schema.PresentationSchema);
   req.db.Bingo = mongoose.model('Bingo', schema.BingoSchema);
   req.db.Audit = mongoose.model('Audit', schema.AuditSchema);
@@ -48,7 +51,6 @@ adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
 // console.log('setting up mailer - ' + JSON.stringify( config.mailer));
 mailer.extend(adminApp, config.mailer);
-config.mailer = mailer;
 
 var adminRoutes = require('./routes/admin/index')({ 'config': config });
 

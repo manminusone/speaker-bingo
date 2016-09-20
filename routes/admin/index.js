@@ -3,8 +3,7 @@
 
 module.exports = (options) => {
 	var config = options.config;
-	var mailer = options.mailer;
-	var log = options.log;
+	var log = config.log;
 
 	var express = require('express');
 	var gravatar = require('gravatar');
@@ -16,7 +15,7 @@ module.exports = (options) => {
 	var isLoggedIn = function(req,res,next) {
 		var User = req.db.User;
 		if (req.session.userId) {
-			User.findById(req.session.userId).populate({ path: 'presentation', populate { path: 'bingo', populate: 'audit'}}).exec(function(err,u) {
+			User.findById(req.session.userId).populate({ path: 'presentation', populate: { path: 'bingo', populate: 'audit'}}).exec(function(err,u) {
 				if (u) req.session.user = u;
 				next();
 			});
@@ -59,7 +58,7 @@ module.exports = (options) => {
 							if (err) {
 								res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
 							} else {
-								mailer.send('email/activation',
+								req.app.mailer.send('email/activation',
 									{
 										'to': updatedUser.email,
 										'from': config.mailer.from,
@@ -95,7 +94,7 @@ module.exports = (options) => {
 						product.prop.authHash = md5(product.email + ' ' + millis.toString());
 						product.markModified('prop');
 						product.save(function(err) {
-							mailer.send('email/activation',
+							req.app.mailer.send('email/activation',
 								{
 									'to': product.email,
 									'from': config.mailer.from,
@@ -120,7 +119,7 @@ module.exports = (options) => {
 		
 	});
 	router.get('/activate', function(req,res,next) {
-		var User = req.db.user;
+		var User = req.db.User;
 		if (req.query.q) {
 			User.findOne({ 'prop.authHash': req.query.q}).exec(function(err,u) {
 				if (u) {
@@ -146,8 +145,8 @@ module.exports = (options) => {
 		var User = req.db.User;
 		User.findOne({ 'email': req.body.email}).exec(function(err,doc) {
 			if (doc) 
-				bcrypt.compare(req.body.pwd, doc.hash, function(err,res) {
-					if (res) {
+				bcrypt.compare(req.body.pwd, doc.hash, function(err,okay) {
+					if (okay) {
 						req.session.userId = doc._id;
 						res.redirect('/profile');
 					} else
@@ -169,12 +168,13 @@ module.exports = (options) => {
 		function(req,res,next) {
 			var Presentation = req.db.Presentation;
 
-			Presentation.find({ uri: req.body.uri }).exec(function(err,doc) {
+			Presentation.findOne({ uri: req.body.uri }).exec(function(err,doc) {
+				console.log('err = ' + err + ', doc = ' + doc);
 				if (doc) {
-					res.render('uri-exists', { 'title': 'New presentation', 'message': 'Your choice fora URI already exists. Try again', 'user': req.session.user });
+					res.render('user-profile', { 'tabChoice': 'profile', config: config, message: 'Your URI choice already exists. Try again.', user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 				} else {
-					var p = Presentation.new({ uri: req.body.uri });
-					p.save(function(err,newP) {
+					Presentation({ uri: req.body.uri, prop: { 'created': new Date() } })
+					.save(function(err,newP) {
 						req.session.user.presentation.push(newP);
 						req.session.user.save(function(err,savedUser) {
 							res.redirect('/profile');
@@ -205,25 +205,24 @@ module.exports = (options) => {
 			req.session.user = null;
 
 			if(req.body.bingoId) {
-				Bingo.findById(req.body.bingoId, function(err,doc) {
-					doc.title = req.body.bingoTitle;
-					doc.choices = choices;
-					doc.save(function(err,savedBingo) {
-						res.render('bingo-edit', { 
-							message: (err || 'Saved successfully'), 
-							user: u,
-							bingo: savedBingo,
-							config: config });
-					});
-				});
+				Bingo.findByIdAndUpdate(req.body.bingoId, {
+					'title': req.body.bingoTitle,
+					'choices': choices
+				}, function(err,doc) {
+					res.render('bingo-edit', { 
+						message: (err || 'Saved successfully'), 
+						user: u,
+						bingo: doc,
+						config: config });
+					}
+				);
 			} else {
-				doclib.bingo.save({
-					presentationId: u.presentations[pid]._id,
-					title: req.body.bingoTitle,
-					choices: choices
-				}, function(err,newBingo) {
-					u.presentations[pid].bingos.push(newBingo._id);
-					doclib.presentation.save(u.presentations[pid], function(err,newdoc,numSaved) {
+				Bingo({
+					'title': req.body.bingoTitle,
+					'choices': choices
+				}).save(function(err,newBingo) {
+					u.presentation[pid].bingo.push(newBingo._id);
+					u.presentation[pid].save(function(err,newdoc) {
 						res.render('bingo-edit', {
 							message: (err || 'Saved successfully'),
 							user: u,
@@ -232,24 +231,23 @@ module.exports = (options) => {
 						});
 					});
 				});
-
 			} // else
 		} // middleware function
 	); // post()
 
 	router.get('/bingo/edit',
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 			if (req.query.q) {
 				var u = req.session.user;
 				var rendered = 0;
-				for (var i = 0; i < u.presentations.length; ++i)
-					for (var j = 0; j < u.presentations[i].bingos.length; ++j) {
-						if (u.presentations[i].bingos[j]._id == req.query.q) {
+				for (var i = 0; i < u.presentation.length; ++i)
+					for (var j = 0; j < u.presentation[i].bingo.length; ++j) {
+						if (u.presentation[i].bingo[j]._id == req.query.q) {
 							res.render('bingo-edit', {
 								message: '',
 								user: u,
-								bingo: u.presentations[i].bingos[j],
+								bingo: u.presentation[i].bingo[j],
 								config: config
 							});
 							rendered = 1;
@@ -263,16 +261,18 @@ module.exports = (options) => {
 		});
 
 	router.get('/bingo/test', 
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 			var u = req.session.user;
 			if (req.query.q) {
 				var rendered = 0;
-				for (var i = 0; i < u.presentations.length; ++i)
-					for (var j = 0; j < u.presentations[i].bingos.length; ++j) {
-						if (u.presentations[i].bingos[j]._id == req.query.q) {
-							u.presentations[i].testBingoId = u.presentations[i].bingos[j]._id;
-							doclib.presentation.save(u.presentations[i], function() { res.redirect('/profile') });
+				for (var i = 0; i < u.presentation.length; ++i)
+					for (var j = 0; j < u.presentation[i].bingo.length; ++j) {
+						if (u.presentation[i].bingo[j]._id == req.query.q) {
+							u.presentation[i].prop['testId'] = u.presentation[i].bingo[j]._id;
+							u.presentation[i].prop['activeId'] = null;
+							u.presentation[i].markModified('prop');
+							u.presentation[i].save(function() { res.redirect('/profile') });
 							rendered = 1;
 							break;
 						}
@@ -285,16 +285,18 @@ module.exports = (options) => {
 	);
 
 	router.get('/bingo/activate', 
-		userlib.isAuthenticated,
+		isLoggedIn,
 		function(req,res,next) {
 			var u = req.session.user;			
 			if (req.query.q) {
 				var rendered = 0;
-				for (var i = 0; i < u.presentations.length; ++i)
-					for (var j = 0; i < u.presentations[i].bingos.length; ++j) {
-						if (u.presentations[i].bingos[j].id == req.query.q) {
-							u.presentations[i].activeBingoId = u.presentations[i].bingos[j]._id;
-							doclib.presentation.save(u.presentations[i], function() { res.redirect('/profile'); });
+				for (var i = 0; i < u.presentation.length; ++i)
+					for (var j = 0; i < u.presentation[i].bingo.length; ++j) {
+						if (u.presentation[i].bingo[j].id == req.query.q) {
+							u.presentation[i].prop['testId'] = null;
+							u.presentation[i].prop['activeId'] = u.presentation[i].bingo[j]._id;
+							u.presentation[i].markModified('prop');
+							u.presentation.save(function() { res.redirect('/profile'); });
 							rendered = 1;
 							break;
 						}
@@ -309,34 +311,16 @@ module.exports = (options) => {
 
 //	static pages
 	router.get('/static/about', function(req,res,next) {
-		if (req.session.userId && ! req.session.user)
-			userlib.find({ 'id': req.session.userId }, function(err,u) {
-				req.session.user = u;
-				res.render('about', { title: 'About this site', tabChoice: 'about', config: config, 'user': u });
-			})
-		else
-			res.render('about', { title: 'About this site', tabChoice: 'about', config: config});
+		res.render('about', { title: 'About this site', tabChoice: 'about', config: config, 'user': req.session.user });
 	});
 	router.get('/static/tos', function(req,res,next) {
-		if (req.session.userId && ! req.session.user)
-			userlib.find({ 'id': req.session.userId }, function(err,u) {
-				req.session.user = u;
-				res.render('tos', { title: 'Terms of service', tabChoice: 'tos', config: config, 'user': u});
-			});
-		else
-			res.render('tos', { title: 'Terms of service', tabChoice: 'tos', config: config, 'user': req.session.user });
+		res.render('tos', { title: 'Terms of service', tabChoice: 'tos', config: config, 'user': req.session.user });
 	});
 	router.get('/static/contact', function(req,res,next) {
-		if (req.session.userId && ! req.session.user)
-			userlib.find({ 'id': req.session.userId }, function(err,u) {
-				req.session.user = u;
-				res.render('contact', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': u });
-			});
-		else
-			res.render('contact', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': req.session.user });
+		res.render('contact', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': req.session.user });
 	});
 	router.post('/static/contact', function(req,res,next) {
-		res.mailer.send('email-contact', {
+		req.app.mailer.send('email-contact', {
 			to: config.contactAddress,
 			subject: '[Speaker Bingo] ' + req.body.subject,
 			name: req.body.name,
@@ -345,15 +329,9 @@ module.exports = (options) => {
 			message: req.body.message
 		}, function(err) {
 			if (err) { log.info('err when sending email: ' + err); }
-			if (req.session.userId && ! req.session.user)
-				userlib.find({ 'id': req.session.userId }, function(err,u) {
-					req.session.user = u;
-					res.render('contact-thanks', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': u });
-				});
-			else
-				res.render('contact-thanks', { title: 'Contact us', tabChoice: 'contact', config: config });
+			res.render('contact-thanks', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': req.session.user });
+		});
 	});
-	})
 
 	return router;
 };
