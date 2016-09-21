@@ -43,11 +43,29 @@ block content
                         |  View on mobile site
                     p                     
                       strong Created: 
-                      date(class="niceDate")= user.presentation[iter].prop['created']
+                      date(class="niceDate")= user.presentation[iter].prop.created
 
-                    - if (user.presentation[iter].activeBingoId) {
-                      h1 THIS IS LIVE!
+                    - if (user.presentation[iter].prop.active)
+                      - if (user.presentation[iter].prop.active.id) {
+                        h1 THIS IS LIVE!
+                        p (started 
+                          date(class="niceDate")= user.presentation[iter].prop.active.start
+                          | )
+                      - } else if (user.presentation[iter].prop.active.stop) {
+                        p Last went live 
+                          date(class="niceDate")= user.presentation[iter].prop.active.stop
                       - }
+
+                    - if (user.presentation[iter].prop.test)
+                      - if (user.presentation[iter].prop.test.id) {
+                      p Currently in testing mode (Started on 
+                        date(class="niceDate")= user.presentation[iter].prop.test.start
+                        | )
+                      - } else if (user.presentation[iter].prop.test.stop) {
+                        p Last tested 
+                          date(class="niceDate")= user.presentation[iter].prop.test.stop
+                      - }
+
                   td
                     - for (var i2 = 0; i2 < user.presentation[iter].bingo.length; ++i2) {
                       - var thisitem = user.presentation[iter].bingo[i2];
@@ -58,8 +76,8 @@ block content
                             a(href="/bingo/edit?q="+thisitem._id)
                               i(class="fa fa-pencil-square-o fa-edit-icon" title="Click to edit")
                             | 
-                            - if (thisitem._id == user.presentation[iter].testBingoId)  {
-                              a(href="/bingo/test/off")
+                            - if (user.presentation[iter].prop.test && thisitem._id == user.presentation[iter].prop.test.id)  {
+                              a(href="/bingo/test/off?q="+user.presentation[iter]._id)
                                 i(class="fa fa-check-circle fa-testing-icon" title="Click to stop testing")
                             - } else { 
                               a(href="/bingo/test?q="+thisitem._id)
@@ -67,8 +85,13 @@ block content
                             - }
                             | 
                             - if (thisitem.choices.length >= 24) {
-                              a(href="/bingo/activate?q="+thisitem._id)
-                                i(class="fa fa-power-off fa-turnon-icon" title="Click to activate")
+                              - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
+                                a(href="/bingo/activate/off?q="+user.presentation[iter]._id)
+                                  i(class="fa fa-power-off fa-running-power-icon" title="Click to stop this game")
+                              - } else {
+                                a(href="/bingo/activate?q="+thisitem._id)
+                                  i(class="fa fa-power-off fa-turnon-icon" title="Click to activate")
+                              - }
                             - } else {
                               i(class="fa fa-power-off fa-turnon-icon-disabled" disabled="disabled" title="Add more items for activation")
                             - }

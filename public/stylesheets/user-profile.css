@@ -16,5 +16,7 @@
 .fa-delete-icon { color: #fcc; }
 .fa-delete-icon:hover { color: #f00; cursor: pointer; }
 
-.fa-turnon-icon,.fa-turnon-icon-disabled { color: #999; }
+.fa-turnon-icon { color: #ccc; }
+.fa-turnon-icon-disabled { color: #999; }
+.fa-running-power-icon { color: #3ff; }
 .fa-turnon-icon:hover { color: #fff; cursor: pointer; }
