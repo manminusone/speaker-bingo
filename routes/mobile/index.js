@@ -37,21 +37,24 @@ module.exports = (options) => {
 					Bingo.findById(
 					 presentation.prop.active.id,
 					 function(err,bingoDoc) {
-					 	console.log(req.session.mylist);
-					 	if (! req.session.mylist) {
-					 		req.session.mylist = new Array();
+					 	console.log(req.session.pres);
+					 	if (! req.session.pres) 
+					 		req.session.pres = {};
+
+					 	if (! req.session.pres[req.params.uri]) {
+					 		req.session.pres[req.params.uri] = new Array();
 							var tmp = bingoDoc.choices;
-							while (req.session.mylist.length < 24 && tmp.length > 0) {
+							while (req.session.pres[req.params.uri].length < 24 && tmp.length > 0) {
 								var thisone;
 								do {
 									thisone = tmp.splice(Math.floor(Math.random() * tmp.length), 1);
 								} while (thisone == '' && tmp.length > 0);
 								if (thisone != '')
-									req.session.mylist.push(thisone[0]);
+									req.session.pres[req.params.uri].push(thisone[0]);
 							}
-							console.log(req.session.mylist);
+							console.log(req.session.pres[req.params.uri]);
 						}
-						res.render('uri-card', { uri: req.params.uri, title: bingoDoc.title, choices: req.session.mylist });
+						res.render('uri-card', { uri: req.params.uri, title: bingoDoc.title, choices: req.session.pres[req.params.uri] });
 					});
 				} else
 					res.render('uri-hello', { uri: req.params.uri })
