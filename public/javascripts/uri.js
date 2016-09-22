@@ -11,7 +11,7 @@ function sendChangedVals() {
 }
 
 $(document).ready(function() {
-	$('.bingoCell').click(function() {
+	$('.bingoCell:not(.bingoHeader)').click(function() {
 	  if ($(this).hasClass('bingoCellOn')) {
 	    $(this).removeClass('bingoCellOn');
 	    $(this).addClass('bingoCellOff');

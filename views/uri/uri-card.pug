@@ -27,6 +27,7 @@ block content
         div(class="bingoCell bingoHeader bingoCellOff")
           | O
 
+  - var ptr = 0;
   - for (var row = 1; row <= 5; ++row) {
     - for (var col = 1; col <= 5; ++col) {
       div(class="bingoSquare")
@@ -34,9 +35,9 @@ block content
           div(class="bingoTable")
             div(class="bingoCell bingoCellOff")
               - if (row == 3 && col == 3)
-                | FREE SPACE
+                strong FREE SPACE
               - else {
-                - var item = choices.shift();
+                - var item = choices[ptr++];
                 | #{item}
               - }
     - }
