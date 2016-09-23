@@ -17,10 +17,14 @@ html
     link(rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css")
     script(src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js")
 
+    script(src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js")
+    link(rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css")
+
     link(rel='stylesheet' href='/stylesheets/style.css')
 
   body
-    nav(class="navbar navbar-default")
+    - var isAdmin = false; if (user && user.prop && user.prop['admin']) isAdmin = true;
+    nav(class="navbar " + (isAdmin ? 'navbar-inverse' : 'navbar-default'))
       div(class="container-fluid")
         div(class="navbar-header")
           button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mainmenu-1" aria-expanded="false")
@@ -31,17 +35,23 @@ html
           a(class="navbar-brand" href="/") speaker bingo
 
         div(class="collapse navbar-collapse" id="mainmenu-1")
-          - var homeClass = '', aboutClass = '', tosClass = '', contactClass = '', profileClass='', accountClass='';
+          - var homeClass = '', aboutClass = '', tosClass = '', contactClass = '', profileClass='', accountClass='', adminClass = '';
           - if (tabChoice == 'about') aboutClass = 'active';
           - else if (tabChoice == 'tos') tosClass = 'active';
           - else if (tabChoice == 'contact') contactClass = 'active';
           - else if (tabChoice == 'profile') profileClass = 'active';
           - else if (tabChoice == 'account') accountClass = 'active';
+          - else if (tabChoice == 'admin') adminClass = 'active';
           - else homeClass = 'active';
           ul(class="nav navbar-nav navbar-right")
             li(class=homeClass)
               a(href="/") Home
             - if (user) {
+              - if (user.prop && user.prop['admin']) {
+                li(class=adminClass)
+                  a(href="/admin") 
+                    strong Admin
+              - }
               li(class=profileClass)
                 a(href="/profile") Profile 
             - }

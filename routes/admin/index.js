@@ -25,6 +25,21 @@ module.exports = (options) => {
 		} else
 			res.redirect('/login');
 	};
+	var isAdmin = function(req,res,next) {
+		if (req.session.user && req.session.user.prop && req.session.user.prop['admin'])
+			next();
+		else
+			res.redirect('/');
+	};
+
+	// admin
+	router.get('/admin', 
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			res.render('admin-index', { tabChoice: 'admin', user: req.session.user, 'config': config, 'userlist': [] })
+		}
+	);
 
 	// home page
 	router.get('/', function(req, res, next) {

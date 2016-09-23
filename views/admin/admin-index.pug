@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  script(src="/javascripts/admin-user.js")
+  div(class="container")
+    i(class="fa fa-gears fa-5x fa-pull-right")
+    div(class="screenAdmin")
+      h1 User admin
+
+      table(name="usertable" id="usertable" class="display" cellspacing="0" width="100%")
+        thead
+          tr
+            th Email
+            th Created
+            th Logged in
+            th Presentations
+            th Admin
+        tfoot
+          tr
+            th Email
+            th Created
+            th Logged in
+            th Presentations
+            th Admin
+
