@@ -68,7 +68,7 @@ module.exports = (options) => {
 				res.render('user-signup', { title: 'Sign up', message: 'Email already exists', email: req.body.email, config: config });
 			else {
 				var millis = new Date().getMilliseconds();
-				var u = new User({ email: req.body.email, prop: { 'authenticated': false, 'admin': false, 'authHash': md5(req.body.email + ' '+millis.toString()) } });
+				var u = new User({ email: req.body.email, prop: { 'created': Date.now(), 'authenticated': false, 'admin': false, 'authHash': md5(req.body.email + ' '+millis.toString()) } });
 				bcrypt.hash(req.body.pwd, 10, function(err,hash) {
 					if (hash) {
 						u.hash = hash;
@@ -165,8 +165,12 @@ module.exports = (options) => {
 			if (doc) 
 				bcrypt.compare(req.body.pwd, doc.hash, function(err,okay) {
 					if (okay) {
-						req.session.userId = doc._id;
-						res.redirect('/profile');
+						doc.prop['login'] = Date.now();
+						doc.markModified('prop');
+						doc.save(function(err,savedDoc) {
+							req.session.userId = savedDoc._id;
+							res.redirect('/profile');						
+						})
 					} else
 						res.render('user-login', {  'tabChoice': 'account', title: 'Login', message: err || 'Account not found', config: config, email: req.body.email });
 				});

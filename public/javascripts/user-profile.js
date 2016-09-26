@@ -23,19 +23,4 @@ $(document).ready(function() {
 	$('.fa-turnon-icon').click(function() {
 		return confirm("Confirm that you want to start this session");
 	});
-
-	$('date.niceDate').each(function() {
-		var d = new Date(this.innerText);
-		if (d) {
-			this.innerText = 
-				['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()] +
-				' ' +
-				d.getDate() +
-				', ' +
-				d.getHours() + 
-				':' +
-				('00'+d.getMinutes()).substr(0,2)
-			;
-		}
-	})
 });

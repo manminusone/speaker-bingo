@@ -31,35 +31,53 @@ module.exports = (options) => {
 				res.json({ uri: req.params.uri, exists: false });
 		})
 	});
-	router.get('/user/list/:start', 
+	router.post('/user/list', 
 		isLoggedIn,
 		isAdmin,
 		function(req,res,next) {
-			var User = req.db.User;
+			console.log(req.body);
 
-			User.count({}, function(err,numusers) {
-				if (! err) {
-					var pagesize = 0;
-					if (numusers < 1000)
-						pagesize = numusers;
-					else if (numusers < 10000)
-						pagesize = 1000;
-					else if (numusers < 100000)
-						pagesize = 2000;
-					else
-						pagesize = 1000;
-					User.find({})
-					 .select('_id email prop presentation audit')
-					 .skip(req.params.start)
-					 .limit(pagesize)
-					 .populate({path: 'presentation', populate: { path: 'bingo', populate: 'audit' }})
-					 .populate({path: 'presentation', populate: 'audit' })
-					 .exec(function(err,result) {
-						res.json(result);
-					})
-				}
-			});
+			var draw = req.body.draw, start = req.body.start, length = req.body['length'];
+			var User = req.db.User;
+			var conditions = {},sortby = { 'email': 1};
+
+			if (req.body['search[value]']) {
+				var rex = new RegExp(req.body['search[value]'], 'i');
+				conditions['email'] = rex;
+			}
+			if (req.body['order[0][column]'] && req.body['order[0][dir]']) {
+				var colname = Array('email','prop.created','prop.login')[req.body['order[0][column]']];
+				sortby = {};
+				sortby[colname]  = (req.body['order[0][dir]'] == 'asc' ? 1 : -1);
+			}
+
+			User.count({}, function(err,count) {
+				User.count(conditions, function(err,filteredCount) {
+
+					User.find(conditions)
+						.select('_id email prop presentation audit')
+						.skip(start)
+						.limit(length)
+						.sort(sortby)
+						.populate({path: 'presentation', populate: { path: 'bingo', populate: 'audit' }})
+						.populate({path: 'presentation', populate: 'audit' })
+						 .exec(function(err,result) {
+						 	var retval = {
+						 		'draw': draw,
+						 		'recordsTotal': count,
+						 		'recordsFiltered': filteredCount,
+						 		'data': result,
+						 		'error': err
+						 	};
+						 	// console.log(JSON.stringify(retval));
+							res.json(retval);
+						})
+					;
+
+				})
+			})
 		}
 	);
+
 	return router;
 };
