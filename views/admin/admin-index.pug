@@ -1,7 +1,47 @@
 extends layout
 
+block modal
+  div(class="modal fade test-card-modal" id="testCardModal" tabindex="-1" role="dialog")
+    div(class="modal-dialog" role="document")
+      div(class="modal-content")
+        div(class="modal-body")
+          table(class="test-card-table")
+            tr
+              td(id="ttbl1") 
+              td(id="ttbl2") 
+              td(id="ttbl3") 
+              td(id="ttbl4") 
+              td(id="ttbl5") 
+            tr
+              td(id="ttbl6") 
+              td(id="ttbl7") 
+              td(id="ttbl8") 
+              td(id="ttbl9") 
+              td(id="ttbl10") 
+            tr
+              td(id="ttbl11") 
+              td(id="ttbl12") 
+              td(id="ttbl-free")
+                strong FREE SPACE
+              td(id="ttbl13") 
+              td(id="ttbl14") 
+            tr
+              td(id="ttbl15") 
+              td(id="ttbl16") 
+              td(id="ttbl17") 
+              td(id="ttbl18") 
+              td(id="ttbl19") 
+            tr
+              td(id="ttbl20") 
+              td(id="ttbl21") 
+              td(id="ttbl22") 
+              td(id="ttbl23") 
+              td(id="ttbl24") 
+
+
 block content
   script(src="/javascripts/admin-user.js")
+  link(rel="stylesheet" href="/stylesheets/admin-user.css")
   div(class="container")
     i(class="fa fa-gears fa-5x fa-pull-right")
     div(class="screenAdmin")

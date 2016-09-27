@@ -24,6 +24,7 @@ html
     link(rel='stylesheet' href='/stylesheets/style.css')
 
   body
+    block modal
     - var isAdmin = false; if (user && user.prop && user.prop['admin']) isAdmin = true;
     nav(class="navbar " + (isAdmin ? 'navbar-inverse' : 'navbar-default'))
       div(class="container-fluid")

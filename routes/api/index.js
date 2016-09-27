@@ -59,9 +59,8 @@ module.exports = (options) => {
 						.skip(start)
 						.limit(length)
 						.sort(sortby)
-						.populate({path: 'presentation', populate: { path: 'bingo', populate: 'audit' }})
-						.populate({path: 'presentation', populate: 'audit' })
-						 .exec(function(err,result) {
+						.populate({path: 'presentation', populate: { path: 'bingo' }})
+						.exec(function(err,result) {
 						 	var retval = {
 						 		'draw': draw,
 						 		'recordsTotal': count,
