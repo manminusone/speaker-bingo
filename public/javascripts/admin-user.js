@@ -1,6 +1,10 @@
 
 var choiceList = Array();
 
+function lockup(which,id) {
+
+}
+
 $(document).ready(function() {
 	$('#usertable').DataTable({
 		'serverSide': true,
@@ -45,7 +49,7 @@ $(document).ready(function() {
 					for (var iter = 0; iter < row.presentation.length; ++iter) {
 						ret += '<div class="admin-presentation">' +
 							'<div class="pull-right"> ' +
-							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? '<i class="fa fa-unlock"></i>' : '<i class="fa fa-unlock"></i>') + 
+							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock fa-unlock-click" data-type="presentation" data-id="'+row._id+'"></i>') + 
 							' </div> ' + 
 							 '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#hidden-'+meta.row+'-'+iter+'" aria-expanded="false" aria-controls="hidden-'+meta.row+'-'+iter+'">' + row.presentation[iter].uri + '</button> ' +
 							 '<div id="hidden-'+meta.row+'-'+iter+'" class="collapse"> ';
@@ -73,12 +77,23 @@ $(document).ready(function() {
 				}
 			}
 		] 
+	}).on('draw.dt', function() { 
+		// console.log('draw()'); console.log($('i.fa-unlock'));
+		$('i.fa-unlock').click(function(e) {
+			if (e.target.dataset.type == 'presentation') {
+				if (confirm('Confirm the locking of this presentation')) {
+
+				}
+			}
+			console.log(e.target.dataset.id);
+
+		})
 	});
 
 	$('.test-card-modal').on('show.bs.modal', function(e) {
 		// console.log(e.relatedTarget.attributes['data-choice'].value);
 		var tmpArray = choiceList[e.relatedTarget.attributes['data-choice'].value];
 		for (var x = 1; x <= 24; ++x)
-			$('#ttbl'+x).html('<p>'+tmpArray[x - 1]+'</p>');
+			$('#ttbl'+x).html('<div>'+tmpArray[x - 1]+'</div>');
 	})
 });
