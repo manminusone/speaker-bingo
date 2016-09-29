@@ -1,33 +1,43 @@
 
-var choiceList = Array();
+var choiceList = Array(), emailList = Array(), fullnameList = Array();
 
-function lockup(which,id) {
 
+var presentationLockHandler = function(e) {
+	var locking = $(e.target).hasClass('fa-unlock');
+
+	if (confirm('Confirm the ' + (locking ? 'locking': 'unlocking') + ' of this presentation')) {
+		$.ajax({
+			'url': '/api/presentation/'+(locking ? 'lock' : 'unlock')+'/'+e.target.dataset.id
+		}).done(function(response) {
+			if (response.error)
+				alert('Error when updating presentation: ' + response.error);
+			else {
+				$('#'+e.target.dataset.id)
+				 .removeClass(locking ? 'fa-unlock' : 'fa-lock')
+				 .addClass(locking ? 'fa-lock' : 'fa-unlock')
+				;
+			}
+		})
+	}
 }
+var userLockHandler = function(e) {
+	var locking = $(e.target).hasClass('fa-unlock');
 
-
-
-var lockedHandler = function(e) {
-	if (e.target.dataset.type == 'presentation') {
-		if (confirm('Confirm the unlocking of this presentation')) {
-			lockup('presentation', e.target.dataset.id);
-			$('#'+t.target.dataset.id).removeClass('fa-lock fa-lock-click').addClass('fa-unlock fa-unlock-click'),click(unlockedHandler);
-		}
+	if (confirm('Confirm the ' + (locking ? 'locking': 'unlocking') + ' of this account')) {
+		$.ajax({
+			'url': '/api/user/'+(locking ? 'lock' : 'unlock')+'/'+e.target.dataset.id
+		}).done(function(response) {
+			if (response.error)
+				alert('Error when updating user: ' + response.error);
+			else {
+				$('#'+e.target.dataset.id)
+				 .removeClass(locking ? 'fa-unlock' : 'fa-lock')
+				 .addClass(locking ? 'fa-lock' : 'fa-unlock')
+				;
+			}
+		})
 	}
-	console.log(e.target.dataset.id);
-
-};
-
-var unlockedHandler = function(e) {
-	if (e.target.dataset.type == 'presentation') {
-		if (confirm('Confirm the locking of this presentation')) {
-			lockup('presentation', e.target.dataset.id);
-			$('#'+t.target.dataset.id).removeClass('fa-unlock fa-unlock-click').addClass('fa-lock fa-lock-click'),click(lockedHandler);
-		}
-	}
-	console.log(e.target.dataset.id);
-
-};
+}
 
 $(document).ready(function() {
 	$('#usertable').DataTable({
@@ -63,8 +73,13 @@ $(document).ready(function() {
 				'orderable': false,
 				data: function(row,type,val,meta) { 
 
-					if (meta.row == 0)
+					if (meta.row == 0) {
 						choiceList = Array();
+						emailList = Array();
+						fullnameList = Array();
+					}
+					emailList[meta.row] = row.email;
+					fullnameList[meta.row] = row.prop.fullname;
 
 					if (row.presentation.length == 0)
 						return 'No presentations';
@@ -73,7 +88,9 @@ $(document).ready(function() {
 					for (var iter = 0; iter < row.presentation.length; ++iter) {
 						ret += '<div class="admin-presentation">' +
 							'<div class="pull-right"> ' +
-							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? '<i class="fa fa-lock"></i>' : '<i id="'+row._id+'" class="fa fa-unlock fa-unlock-click" data-type="presentation" data-id="'+row._id+'"></i>') + 
+							'<i id="'+row.presentation[iter]._id+'" class="fa ' + 
+							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? 'fa-lock' : 'fa-unlock') + 
+							' presentation-lock" data-type="presentation" data-id="'+row.presentation[iter]._id+'"></i>' +
 							' </div> ' + 
 							 '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#hidden-'+meta.row+'-'+iter+'" aria-expanded="false" aria-controls="hidden-'+meta.row+'-'+iter+'">' + row.presentation[iter].uri + '</button> ' +
 							 '<div id="hidden-'+meta.row+'-'+iter+'" class="collapse"> ';
@@ -92,8 +109,10 @@ $(document).ready(function() {
 				data: function(row,type,val,meta) { 
 					var ret = '';
 					ret = '<h2>' + 
-						(row.prop & row.prop.locked ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock"></i>') +
-						' <i class="fa fa-user-secret"></i>' +
+						'<i id="' + row._id + '" class="fa ' +
+						((row.prop && row.prop.lock) ? 'fa-lock' : 'fa-unlock') +
+						' user-lock" data-type="user" data-id="'+row._id+'"></i> ' +
+						' <i class="fa fa-user-secret user-data" data-toggle="modal" data-target="#userModal" data-id="'+row._id+'" data-choice="'+meta.row+'"></i>' +
 						' <i class="fa fa-trash"></i>'
 						'</h2>';
 
@@ -102,14 +121,18 @@ $(document).ready(function() {
 			}
 		] 
 	}).on('draw.dt', function() { 
-		// console.log('draw()'); console.log($('i.fa-unlock'));
-		$('i.fa-unlock').click(unlockedHandler);
+		$('i.presentation-lock').click(presentationLockHandler);
+		$('i.user-lock').click(userLockHandler);
 	});
 
 	$('.test-card-modal').on('show.bs.modal', function(e) {
-		// console.log(e.relatedTarget.attributes['data-choice'].value);
 		var tmpArray = choiceList[e.relatedTarget.attributes['data-choice'].value];
 		for (var x = 1; x <= 24; ++x)
 			$('#ttbl'+x).html('<div>'+tmpArray[x - 1]+'</div>');
+	});
+	$('.user-modal').on('show.bs.modal', function(e) {
+		var i = e.relatedTarget.attributes['data-choice'].value;
+		$('#userEmail').val(emailList[i]);
+		$('#userFullName').val(fullnameList[i]);
 	})
 });

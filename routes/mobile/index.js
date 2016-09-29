@@ -18,7 +18,9 @@ module.exports = (options) => {
 		 { 'uri': req.params.uri }, 
 		 function(err,presentation) {
 			if (presentation) {
-				if(presentation.prop.test && presentation.prop.test.id) {
+				if (presentation.prop && presentation.prop.lock)  // just render a generic page if URI is locked
+					res.render('uri-hello', { uri: req.params.uri });
+				else if(presentation.prop.test && presentation.prop.test.id) {
 					Bingo.findById(
 					 presentation.prop.test.id,
 					 function(err,bingoDoc) {

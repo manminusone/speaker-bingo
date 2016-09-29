@@ -1,6 +1,27 @@
 extends layout
 
 block modal
+  div(class="modal fade user-modal" id="userModal" tabindex="-1" role="dialog")
+    div(class="modal-dialog" role="document")
+      div(class="modal-content")
+        div(class="modal-header")
+          button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+          h4(class="modal-title") User information
+        div(class="modal-body")
+          
+          form
+            div(class="form-group")
+              label(for="userEmail") Email address
+              input(type="email" class="form-control" id="userEmail" placeholder="email@domain.com")
+            div(class="form-group")
+              label(for="userFullName") Full name
+              input(type="text" class="form-control" id="userFullName" placeholder="Joe Blough")
+
+        div(class="modal-footer")
+          button(type="button" class="btn btn-default" data-dismiss="modal") Close
+          button(type="button" class="btn btn-primary") Save changes
+
   div(class="modal fade test-card-modal" id="testCardModal" tabindex="-1" role="dialog")
     div(class="modal-dialog" role="document")
       div(class="modal-content")

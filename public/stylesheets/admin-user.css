@@ -3,4 +3,4 @@
 table.test-card-table { width: 100%; height: 100%; }
 table.test-card-table td { height: 100%; border: 1px solid black; width: 20%; padding-bottom: 20%;  text-align: center; font-size: 100%; vertical-align: middle; }
 
-.fa-unlock-click { cursor: pointer; }
+.user-lock, .user-data, .presentation-lock { cursor: pointer; }

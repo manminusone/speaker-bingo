@@ -18,12 +18,29 @@ module.exports = (options) => {
 	var isLoggedIn = function(req,res,next) {
 		var User = req.db.User;
 		if (req.session.userId) {
-			User.findById(req.session.userId).populate({ path: 'presentation', populate: { path: 'bingo', populate: 'audit'}}).exec(function(err,u) {
+			User.findById(req.session.userId)
+			 .populate({ 
+			 	path: 'presentation', 
+			 	match: { 'prop.lock': { $ne: true } },  // see admin page for unlocking
+			 	populate: { 
+			 		path: 'bingo', 
+			 		populate: 'audit'
+			 	}
+			 })
+			 .exec(function(err,u) {
 				if (u) req.session.user = u;
 				next();
 			});
 		} else
-			res.redirect('/login');
+			res.redirect('/login');			
+	};
+
+	var isLocked = function(req,res,next) {
+		if (req.session.user && req.session.user.prop && req.session.user.prop.lock)
+			res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account locked', 'message': 'Your account was created, but has been locked due to unusual activity. Please contact the admins for further information. Thanks.'})
+		else
+			next();
+
 	};
 	var isAdmin = function(req,res,next) {
 		if (req.session.user && req.session.user.prop && req.session.user.prop['admin'])
@@ -35,6 +52,7 @@ module.exports = (options) => {
 	// admin
 	router.get('/admin', 
 		isLoggedIn,
+		isLocked,
 		isAdmin,
 		function(req,res,next) {
 			res.render('admin-index', { tabChoice: 'admin', user: req.session.user, 'config': config, 'userlist': [] })
@@ -103,6 +121,7 @@ module.exports = (options) => {
 
 	router.get('/activation', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			var User = req.db.User;
 			if (req.session.userId)
@@ -179,6 +198,7 @@ module.exports = (options) => {
 
 	router.get('/profile', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
@@ -186,6 +206,7 @@ module.exports = (options) => {
 
 	router.post('/presentation/new', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			var Presentation = req.db.Presentation;
 
@@ -210,12 +231,14 @@ module.exports = (options) => {
 
 	router.get('/bingo/:num/new',
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			res.render('bingo-new', { 'title': 'New Bingo Card', 'config': config, 'presentationNum': req.params.num, 'user': req.session.user });
 		});
 
 	router.post('/bingo/save', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 
 			var choices = JSON.parse(req.body.choices);
@@ -258,6 +281,7 @@ module.exports = (options) => {
 
 	router.get('/bingo/edit',
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			if (req.query.q) {
 				var u = req.session.user;
@@ -283,6 +307,7 @@ module.exports = (options) => {
 
 	router.get('/bingo/test', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			var u = req.session.user;
 			var Presentation = req.db.Presentation;
@@ -316,6 +341,7 @@ module.exports = (options) => {
 	);
 	router.get('/bingo/activate', 
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			var u = req.session.user;			
 			var Presentation = req.db.Presentation;
@@ -349,6 +375,7 @@ module.exports = (options) => {
 	);
 	router.get('/bingo/test/off',
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			if (req.query.q) {
 				var q = req.query.q,
@@ -380,6 +407,7 @@ module.exports = (options) => {
 	);
 	router.get('/bingo/activate/off',
 		isLoggedIn,
+		isLocked,
 		function(req,res,next) {
 			if (req.query.q) {
 				var q = req.query.q,

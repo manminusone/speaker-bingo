@@ -3,6 +3,9 @@ module.exports = (options) => {
 	var router = express.Router();
 	var config = options.config;
 
+	var mongoose = require('mongoose');
+	var Schema = mongoose.Schema;
+
 	var isLoggedIn = function(req,res,next) {
 		var User = req.db.User;
 		if (req.session.userId) {
@@ -75,6 +78,104 @@ module.exports = (options) => {
 
 				})
 			})
+		}
+	);
+
+	router.get('/presentation/lock/:id',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var Presentation = req.db.Presentation;
+			console.log('id = ' + req.params.id);
+			Presentation.findById(req.params.id, function(err,o) {
+				if (err)
+					res.json({"error": err });
+				else {
+					if (! o.prop)
+						o.prop = {};
+					o.prop['lock'] = true;
+					o.markModified('prop.lock');
+					o.save(function(err,saved) {
+						if (err)
+							res.json({ "error": err });
+						else
+						res.json({'ok': 1});
+					});
+				}
+			});
+		}
+	);
+
+	router.get('/presentation/unlock/:id',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var Presentation = req.db.Presentation;
+			console.log('id = ' + req.params.id);
+			Presentation.findById(req.params.id, function(err,o) {
+				if (err)
+					res.json({"error": err });
+				else {
+					if (! o.prop)
+						o.prop = {};
+					o.prop['lock'] = false;
+					o.markModified('prop.lock');
+					o.save(function(err,saved) {
+						if (err)
+							res.json({ "error": err });
+						else
+						res.json({'ok': 1});
+					});
+				}
+			});
+		}
+	);
+
+	router.get('/user/lock/:id',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var User = req.db.User;
+			User.findById(req.params.id, function(err,o) {
+				if (err)
+					res.json({"error": err });
+				else {
+					if (! o.prop)
+						o.prop = {};
+					o.prop['lock'] = true;
+					o.markModified('prop.lock');
+					o.save(function(err,saved) {
+						if (err)
+							res.json({ "error": err });
+						else
+						res.json({'ok': 1});
+					});
+				}
+			});
+		}
+	);
+
+	router.get('/user/unlock/:id',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var User = req.db.User;
+			User.findById(req.params.id, function(err,o) {
+				if (err)
+					res.json({"error": err });
+				else {
+					if (! o.prop)
+						o.prop = {};
+					o.prop['lock'] = false;
+					o.markModified('prop.lock');
+					o.save(function(err,saved) {
+						if (err)
+							res.json({ "error": err });
+						else
+						res.json({'ok': 1});
+					});
+				}
+			});
 		}
 	);
 
