@@ -5,6 +5,30 @@ function lockup(which,id) {
 
 }
 
+
+
+var lockedHandler = function(e) {
+	if (e.target.dataset.type == 'presentation') {
+		if (confirm('Confirm the unlocking of this presentation')) {
+			lockup('presentation', e.target.dataset.id);
+			$('#'+t.target.dataset.id).removeClass('fa-lock fa-lock-click').addClass('fa-unlock fa-unlock-click'),click(unlockedHandler);
+		}
+	}
+	console.log(e.target.dataset.id);
+
+};
+
+var unlockedHandler = function(e) {
+	if (e.target.dataset.type == 'presentation') {
+		if (confirm('Confirm the locking of this presentation')) {
+			lockup('presentation', e.target.dataset.id);
+			$('#'+t.target.dataset.id).removeClass('fa-unlock fa-unlock-click').addClass('fa-lock fa-lock-click'),click(lockedHandler);
+		}
+	}
+	console.log(e.target.dataset.id);
+
+};
+
 $(document).ready(function() {
 	$('#usertable').DataTable({
 		'serverSide': true,
@@ -49,7 +73,7 @@ $(document).ready(function() {
 					for (var iter = 0; iter < row.presentation.length; ++iter) {
 						ret += '<div class="admin-presentation">' +
 							'<div class="pull-right"> ' +
-							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock fa-unlock-click" data-type="presentation" data-id="'+row._id+'"></i>') + 
+							(row.presentation[iter].prop && row.presentation[iter].prop.lock ? '<i class="fa fa-lock"></i>' : '<i id="'+row._id+'" class="fa fa-unlock fa-unlock-click" data-type="presentation" data-id="'+row._id+'"></i>') + 
 							' </div> ' + 
 							 '<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#hidden-'+meta.row+'-'+iter+'" aria-expanded="false" aria-controls="hidden-'+meta.row+'-'+iter+'">' + row.presentation[iter].uri + '</button> ' +
 							 '<div id="hidden-'+meta.row+'-'+iter+'" class="collapse"> ';
@@ -79,15 +103,7 @@ $(document).ready(function() {
 		] 
 	}).on('draw.dt', function() { 
 		// console.log('draw()'); console.log($('i.fa-unlock'));
-		$('i.fa-unlock').click(function(e) {
-			if (e.target.dataset.type == 'presentation') {
-				if (confirm('Confirm the locking of this presentation')) {
-
-				}
-			}
-			console.log(e.target.dataset.id);
-
-		})
+		$('i.fa-unlock').click(unlockedHandler);
 	});
 
 	$('.test-card-modal').on('show.bs.modal', function(e) {
