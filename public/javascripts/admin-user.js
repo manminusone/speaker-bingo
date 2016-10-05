@@ -1,5 +1,5 @@
 
-var choiceList = Array(), emailList = Array(), fullnameList = Array();
+var choiceList = Array(), emailList = Array(), fullnameList = Array(), idList = Array();
 
 
 var presentationLockHandler = function(e) {
@@ -39,8 +39,10 @@ var userLockHandler = function(e) {
 	}
 }
 
+var tableObj;
+
 $(document).ready(function() {
-	$('#usertable').DataTable({
+	tableObj = $('#usertable').DataTable({
 		'serverSide': true,
 		'ajax': { 'url': '/api/user/list', type: 'POST' },
 		'columns': [
@@ -77,7 +79,9 @@ $(document).ready(function() {
 						choiceList = Array();
 						emailList = Array();
 						fullnameList = Array();
+						idList = Array();
 					}
+					idList[meta.row] = row._id;
 					emailList[meta.row] = row.email;
 					fullnameList[meta.row] = row.prop.fullname;
 
@@ -132,7 +136,24 @@ $(document).ready(function() {
 	});
 	$('.user-modal').on('show.bs.modal', function(e) {
 		var i = e.relatedTarget.attributes['data-choice'].value;
+		console.log(idList[i]);
+		$('#userIdHidden').val(idList[i]);
 		$('#userEmail').val(emailList[i]);
 		$('#userFullName').val(fullnameList[i]);
+		$('#update-user-info-button').click(function(e) {
+			console.log('click');
+			$.ajax({
+				'method': 'POST',
+				'url': '/api/user/update',
+				'data': { '_id': $('#userIdHidden').val(), 'email': $('#userEmail').val(), 'fullname': $('#userFullName').val() }
+			}).done(function(response) {
+				if (response.error)
+					alert('Error when updating user: '+response.error);
+				else {
+					console.log('invalidating row '+i);
+					tableObj.row(i).invalidate().draw();
+				}
+			}).fail(function(response) { console.log(response)});
+		});
 	})
 });

@@ -11,16 +11,17 @@ block modal
         div(class="modal-body")
           
           form
+            input(type="hidden" name="userIdHidden" id="userIdHidden" value="")
             div(class="form-group")
               label(for="userEmail") Email address
-              input(type="email" class="form-control" id="userEmail" placeholder="email@domain.com")
+              input(type="email" class="form-control" name="userEmail" id="userEmail" placeholder="email@domain.com")
             div(class="form-group")
               label(for="userFullName") Full name
-              input(type="text" class="form-control" id="userFullName" placeholder="Joe Blough")
+              input(type="text" class="form-control" name="userFullName" id="userFullName" placeholder="Joe Blough")
 
         div(class="modal-footer")
           button(type="button" class="btn btn-default" data-dismiss="modal") Close
-          button(type="button" class="btn btn-primary") Save changes
+          button(type="button" class="btn btn-primary" data-dismiss="modal" id="update-user-info-button") Save changes
 
   div(class="modal fade test-card-modal" id="testCardModal" tabindex="-1" role="dialog")
     div(class="modal-dialog" role="document")

@@ -179,5 +179,29 @@ module.exports = (options) => {
 		}
 	);
 
+	router.post('/user/update',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var User = req.db.User;
+			if (req.body['_id']) {
+				User.findById(req.body['_id'], function(err,o) {
+					if (err)
+						res.json({"error": err });
+					else {
+						o.email = req.body.email || '';
+						o.fullname = req.body.fullname || '';
+						o.save(function(err,saved) {
+							if (err)
+								res.json({"error": err});
+							else
+								res.json({"ok": 1});
+						});
+					}
+				});
+			}
+		}
+	);
+
 	return router;
 };
