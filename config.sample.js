@@ -11,6 +11,13 @@ exports.vhost = {
 	"uriDomain": "speaker-bingo.local"
 };
 
+
+// allow users to create new accounts
+exports.allowSignup = true;
+// send emails for activation
+exports.confirmByEmail = true;
+
+
 // https://github.com/RGBboy/express-mailer
 exports.contactAddress = 'your@address.here';
 exports.mailer = {
