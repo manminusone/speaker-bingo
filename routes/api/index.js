@@ -202,6 +202,30 @@ module.exports = (options) => {
 			}
 		}
 	);
+	router.get('/user/activate/:uid',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var User = req.db.User;
+			User.findById(req.params.uid, function(err,u) {
+				if (err)
+					res.json({"error": err });
+				else {
+					console.log(u);
+					if (! u.prop)
+						u.prop = {};
+					u.prop.authenticated = true;
+					u.markModified('prop');
+					u.save(function(err,savedu) {
+						if (err)
+							res.json({ 'error': err });
+						else 
+							res.json({ 'ok': 1 });
+					});
+				}
+			});
+		}
+	);
 
 	return router;
 };

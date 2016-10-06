@@ -358,8 +358,9 @@ module.exports = (options) => {
 				var chosenId = req.query.q;
 				var rendered = 0;
 
+				console.log(JSON.stringify(u.presentation));
 				for (var i = 0; i < u.presentation.length; ++i)
-					for (var j = 0; i < u.presentation[i].bingo.length; ++j) {
+					for (var j = 0; j < u.presentation[i].bingo.length; ++j) {
 						if (u.presentation[i].bingo[j].id == chosenId) {
 							Presentation.findById(u.presentation[i].id, function(err, pres) {
 								if (! pres.prop.test) { pres.prop.test = {}; }

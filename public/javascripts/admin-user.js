@@ -1,6 +1,28 @@
 
-var choiceList = Array(), emailList = Array(), fullnameList = Array(), idList = Array();
+var tableObj,
+	choiceList = Array(), 
+	emailList = Array(), 
+	fullnameList = Array(), 
+	idList = Array();
 
+var userauthHandler = function(e) {
+	var id = e.target.dataset.id;
+	console.log(e);
+	if (confirm('Activate this account?')) {
+		$.ajax({
+			'url': '/api/user/activate/'+id
+		}).done(function(response) {
+			if (response.error)
+				alert('Error when updating user account: ' + response.error);
+			else {
+				var i = e.target.dataset.row;
+				console.log('invalidating row '+i);
+				tableObj.row(i).invalidate().draw();
+			}
+		});
+	}
+
+};
 
 var presentationLockHandler = function(e) {
 	var locking = $(e.target).hasClass('fa-unlock');
@@ -39,8 +61,6 @@ var userLockHandler = function(e) {
 	}
 }
 
-var tableObj;
-
 $(document).ready(function() {
 	tableObj = $('#usertable').DataTable({
 		'serverSide': true,
@@ -49,10 +69,14 @@ $(document).ready(function() {
 			{ 
 				'searchable': true,
 				'data': function(row,type,val,meta) {
+					var authIcon = '<i class="fa fa-question-circle-o fa-address-unconfirmed" data-id="'+row._id+'" data-row="'+meta.row+'" title="Unconfirmed email address"></i>';
+					if (row.prop && row.prop.authenticated)
+						authIcon = '<i class="fa fa-check-circle-o fa-address-confirmed" title="Address has been confirmed"></i>';
+
 					if (type === 'display') {
-						return '<a href="mailto:'+row.email+'">'+row.email+'</a>';
+						return '<a href="mailto:'+row.email+'">'+row.email+'</a> '+authIcon;
 					} else if (type === 'filter') {
-						return '<a href="mailto:'+row.email+'">'+row.email+'</a> '+row.email;
+						return '<a href="mailto:'+row.email+'">'+row.email+'</a> '+authIcon+' '+row.email;
 					}
 					return row.email;
 				} 
@@ -127,6 +151,7 @@ $(document).ready(function() {
 	}).on('draw.dt', function() { 
 		$('i.presentation-lock').click(presentationLockHandler);
 		$('i.user-lock').click(userLockHandler);
+		$('i.fa-address-unconfirmed').click(userauthHandler);
 	});
 
 	$('.test-card-modal').on('show.bs.modal', function(e) {
@@ -155,5 +180,5 @@ $(document).ready(function() {
 				}
 			}).fail(function(response) { console.log(response)});
 		});
-	})
+	});
 });
