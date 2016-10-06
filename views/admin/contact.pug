@@ -2,39 +2,45 @@ extends layout
 
 block content
   div(class="container")
-    h1 Contact us
-    i(class="fa fa-envelope fa-5x fa-pull-right")
-    p The code for this site is 
-      a(href="https://github.com/manminusone/speaker-bingo") available on Github,
-      |  so technical questions and bug reports are best addressed on that site. 
+    div(class="col-md-10 col-md-offset-1")
+      h1 Contact us
+      i(class="fa fa-envelope fa-5x fa-pull-right")
+      p The code for this site is 
+        a(href="https://github.com/manminusone/speaker-bingo" target="_blank") available on Github,
+        |  so technical questions and bug reports are best addressed on that site. 
 
-    p If you have further questions or comments about this site, please use the form below to get in touch.
+      p If you have further questions or comments about this site, please use the form below to get in touch.
 
-    form(method="post")
-      table(class="niceTable")
-        tr
-          th Your name
-          td 
-            input(type="text" name="name")
-        tr
-          th Contact email address
-          td
-            input(type="text" name="email")
-        tr
-          th What's this about?
-          td
-            select(name="subject")
-              option(value="") choose one
-              option Technical question about the site
-              option Report of objectionable content on the site
-              option Professional inquiry
-              option Just wanted to say hi
-              option None of the above
-        tr
-          th Your message
-          td
-            textarea(name="message" rows="10" cols="40")
-        tr
-          th When you're ready:
-          td
-            button(id="smailButton" name="smailButton") send message
+      form(method="post")
+        table(class="niceTable" id="contactTable" name="contactTable")
+          tr
+            th Your name
+            td 
+              input(type="text" class="form-control" id="name" name="name" placeholder="J. Random Bingo")
+          tr
+            th Contact email address
+            td
+              input(type="email" class="form-control" id="email" name="email" placeholder="you@where.com")
+          tr
+            th What's this about?
+            td
+              select(class="form-control" id="subject" name="subject")
+                option(value="") choose one
+                option Technical question about the site
+                option Report of objectionable content on the site
+                option Professional inquiry
+                option Just wanted to say hi
+                option None of the above
+          tr
+            th Your message
+            td
+              textarea(id="message" name="message" class="form-control" rows="10")
+          tr
+            td(colspan="2")
+              | &nbsp;
+          tr
+            th When you're ready:
+            td
+              button(id="smailButton" name="smailButton" class="btn btn-primary" disabled="disabled") 
+                i(class="fa fa-paper-plane-o") 
+                |  Send message

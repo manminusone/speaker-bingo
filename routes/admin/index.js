@@ -76,7 +76,7 @@ module.exports = (options) => {
 		if (req.session.userId)
 			res.redirect('/profile');
 		else if (! config.allowSignup)
-			res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Account creation is currently disabled by the admins. Please contact us if you want to create a new account.'});
+			res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account creation not allowed', 'message': 'Account creation is currently disabled by the admins. Please contact us if you want to create a new account.'});
 		else
 			res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: '', config: config });
 	});

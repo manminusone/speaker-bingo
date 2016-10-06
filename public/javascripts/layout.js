@@ -21,4 +21,16 @@ $(function() {
 		else 
 			console.log('could not process '+this.innerText);
 	});	
+
+	if ($('#contactTable')) {
+		console.log('setting change()')
+		$(document).keypress(function() {
+			if ($('#name').val() == '' || $('#email').val() == '' || $('#message').val() == '') {
+				$('#smailButton').attr('disabled','disabled');
+			}
+			else {
+				$('#smailButton').removeAttr('disabled');
+			}
+		});
+	}
 });

@@ -2,11 +2,11 @@ extends layout
 
 block content
   div(class="container")
-    i(class="fa fa-info-circle fa-5x fa-pull-right") 
-    h1= title
+    div(class="col-md-8 col-md-offset-2")
+        i(class="fa fa-info-circle fa-5x fa-pull-right") 
+        h1= title
 
-    - var lines = message.split("\n");
-    - lines.forEach(function(l) {
-      p= l
-    - })
-
+        - var lines = message.split("\n");
+        - lines.forEach(function(l) {
+          p= l
+        - })
