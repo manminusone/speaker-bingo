@@ -2,6 +2,7 @@
 
 // requires with no config needed
 var express = require('express');
+var helmet = require('helmet');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -27,6 +28,9 @@ mongoose.Promise = require('bluebird');
 var mongoStore = require('connect-mongo')(session);
 
 var app = express(), adminApp = express(), mobileApp = express();
+app.use(helmet());
+adminApp.use(helmet());
+mobileApp.use(helmet());
 
 var schema = require('./schema');
 

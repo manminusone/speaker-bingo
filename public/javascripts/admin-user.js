@@ -126,7 +126,7 @@ $(document).ready(function() {
 							ret += '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#testCardModal" data-choice="' + choiceList.length + '">' + row.presentation[iter].bingo[i2].title + '</button>';
 							choiceList.push(row.presentation[iter].bingo[i2].choices);
 						}
-						ret += '</div>';
+						ret += '</div> </div>';
 					}
 					return ret;
 
