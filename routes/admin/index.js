@@ -209,6 +209,8 @@ module.exports = (options) => {
 		isLoggedIn,
 		isLocked,
 		function(req,res,next) {
+			console.log(req.session.user);
+
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
 	);

@@ -22,6 +22,8 @@ exports.BingoSchema = new Schema({
 	audit: [ { type: Schema.Types.ObjectId, ref: 'Audit' }]
 });
 exports.AuditSchema = new Schema({
+	timestamp: { type: Date, default: Date.now },
+	uri: String,
 	key: String,
 	value: String
 });

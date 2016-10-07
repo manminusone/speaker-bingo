@@ -27,7 +27,7 @@ module.exports = (options) => {
 	router.get('/uri/:uri', function(req,res,next) {
 		var Presentation = req.db.Presentation;
 		Presentation.findOne({ uri : req.params.uri }, function(err,doc) {
-			console.log('err = ' + err+ ', doc = ' + doc);
+			// console.log('err = ' + err+ ', doc = ' + doc);
 			if (doc)
 				res.json({ uri: req.params.uri, exists: true});
 			else

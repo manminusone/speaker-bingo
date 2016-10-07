@@ -73,8 +73,12 @@ block content
                         p #{thisitem.title}  
                           small #{thisitem.choices.length} items
                           span(class="pull-right")
-                            a(href="/bingo/edit?q="+thisitem._id)
-                              i(class="fa fa-pencil-square-o fa-edit-icon" title="Click to edit")
+                            - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
+                              i(class="fa fa-pencil-square-o" title="Cannot edit an active bingo card")
+                            - } else {
+                              a(href="/bingo/edit?q="+thisitem._id)
+                                i(class="fa fa-pencil-square-o fa-edit-icon" title="Click to edit")
+                            - }
                             | 
                             - if (user.presentation[iter].prop.test && thisitem._id == user.presentation[iter].prop.test.id)  {
                               a(href="/bingo/test/off?q="+user.presentation[iter]._id)
