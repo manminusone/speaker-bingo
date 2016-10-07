@@ -30,10 +30,11 @@ div.container h1 { font-family: Lobster,cursive; font-size: 3.5em; }
 .niceTable th { padding: 4px; font-size: 1.5em; text-align: right; }
 
 ul.bingoList { height: 20em; border: 1px solid #ccc; padding: 0; margin: 0; overflow: scroll; overflow-x: hidden; width: 100%; }
-ul.bingoList li { border-top: 1px solid #ccc;  }
-.bingoDel { cursor: pointer; color: #ccc; border: 1px solid #ccc; }
+ul.bingoList li { border-top: 1px solid #ccc; font-size: 150%; }
+.bingoDel { cursor: pointer; color: #f99; }
 .bingoDel:hover { color:#f00;  }
 p.bingoEditItem { width: 80%; padding: 4px; background: #333; color:#FFF; font-size: 3em; font-weight: bold; }
+.number-span { display: inline-block; background: #33f; color: #fff; font-size: 50%; font-weight: bold; vertical-align: middle; border-radius: 6px; padding: 2px 4px 2px 2px; width: 2em; text-align: right; }
 
 #accordionBingo a.titleLink { font-size: 3em; font-family: Lobster,cursive; }
 .activeTest { color:#000; }

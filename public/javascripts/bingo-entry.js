@@ -1,11 +1,21 @@
+function rejiggerNumbers() {
+	$('.number-span').each(function(index,element) {
+		$(this).text(index + 1);
+	});
+}
+
 function addBingoItem(txtName) {
-	var closeButton = $('<i class="fa fa-close bingoDel"> </i>');
-	closeButton.click(function() { $(this).parent().remove() });
-	var editableSpan = $('<span contenteditable="true"> ' + txtName + '</span> ');
+	var closeButton = $('<i class="fa fa-times-circle-o bingoDel"> </i>');
+	closeButton.click(function() { $(this).parent().remove(); rejiggerNumbers(); });
+	var editableSpan = $('<span class="span-text" contenteditable="true"> ' + txtName + '</span> ');
 	editableSpan.keydown(function(ev) { if (ev.which == 13) { console.log('done'); $('#bingoEntry').focus(); ev.preventDefault(); }});
-	var tmp = $('<li> </li>'); tmp.append(editableSpan);
+
+	var tmp = $('<li> </li>'); 
+	tmp.append('<span class="number-span"> ### </span> ');
+	tmp.append(editableSpan);
 	tmp.append(closeButton);
 	$('#bingoList').append(tmp);
+	rejiggerNumbers();
 }
 
 
@@ -13,7 +23,7 @@ $(document).ready(function() {
 	console.log('setting up form');
 
 	$('#submitButton').click(function(e) {
-		var choiceArray = $('#bingoList li span');
+		var choiceArray = $('#bingoList li span.span-text');
 		var result = Array();
 		for (var i = 0; i < choiceArray.length; ++i) {
 			result.push(choiceArray[i].innerText);
