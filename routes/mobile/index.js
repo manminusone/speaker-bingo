@@ -46,10 +46,12 @@ module.exports = (options) => {
 					 	if (! req.session.pres) 
 					 		req.session.pres = {};
 
-					 	if (1 || ! req.session.pres[req.params.uri] || req.session.starttime < presentation.prop.active.start) {
+					 	console.log(req.session.starttime);
+					 	console.log(presentation.prop.active);
+					 	if (! req.session.pres[req.params.uri] || new Date(req.session.starttime).getTime() < new Date(presentation.prop.active.start).getTime()) {
 					 		req.session.starttime = new Date();
 					 		req.session.pres[req.params.uri] = new Array();
-							var tmp = bingoDoc.choices.splice(0); // don't want to affect original array
+							var tmp = bingoDoc.choices.slice(0); // don't want to affect original array
 
 							while (req.session.pres[req.params.uri].length < 24 && tmp.length > 0) {
 								var thisone;
@@ -63,9 +65,8 @@ module.exports = (options) => {
 
 							var a = new Audit({ 'uri': req.params.uri, 'key': 'GAMESTART' });
 							a.save(function(err,saved_audit) { 
-								console.log('audit object saved. err = ' + err); 
-								console.log(JSON.stringify(saved_audit));
 								bingoDoc.audit.push(saved_audit);
+								console.log(JSON.stringify(bingoDoc));
 								bingoDoc.save(function(err) { console.log('err = ' + err); });
 							});
 						}

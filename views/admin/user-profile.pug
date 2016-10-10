@@ -50,7 +50,8 @@ block content
                         h1 THIS IS LIVE!
                         p (started 
                           date(class="niceDate")= user.presentation[iter].prop.active.start
-                          | )
+                          span(class="live-count" id=user.presentation[iter]._id data-id=user.presentation[iter]._id)
+                          | ) 
                       - } else if (user.presentation[iter].prop.active.stop) {
                         p Last went live 
                           date(class="niceDate")= user.presentation[iter].prop.active.stop
@@ -88,14 +89,12 @@ block content
                                 i(class="fa fa-circle fa-test-icon" title="Click to start testing")
                             - }
                             | 
-                            - if (thisitem.choices.length >= 24) {
-                              - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
-                                a(href="/bingo/activate/off?q="+user.presentation[iter]._id)
-                                  i(class="fa fa-power-off fa-running-power-icon" title="Click to stop this game")
-                              - } else {
-                                a(href="/bingo/activate?q="+thisitem._id)
-                                  i(class="fa fa-power-off fa-turnon-icon" title="Click to activate")
-                              - }
+                            - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
+                              a(href="/bingo/activate/off?q="+user.presentation[iter]._id)
+                                i(class="fa fa-power-off fa-running-power-icon" title="Click to stop this game")
+                            - } else if (thisitem.choices.length >= 24) {
+                              a(href="/bingo/activate?q="+thisitem._id)
+                                i(class="fa fa-power-off fa-turnon-icon" title="Click to activate")
                             - } else {
                               i(class="fa fa-power-off fa-turnon-icon-disabled" disabled="disabled" title="Add more items for activation")
                             - }

@@ -23,8 +23,7 @@ module.exports = (options) => {
 			 	path: 'presentation', 
 			 	match: { 'prop.lock': { $ne: true } },  // see admin page for unlocking
 			 	populate: { 
-			 		path: 'bingo', 
-			 		populate: 'audit'
+			 		path: 'bingo'
 			 	}
 			 })
 			 .exec(function(err,u) {
@@ -209,7 +208,7 @@ module.exports = (options) => {
 		isLoggedIn,
 		isLocked,
 		function(req,res,next) {
-			console.log(req.session.user);
+			console.log(JSON.stringify(req.session.user.presentation[0]));
 
 			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}

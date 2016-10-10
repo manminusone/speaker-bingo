@@ -3,6 +3,16 @@ var
 	goodIcon = $('<i class="fa fa-check-circle"></i> '), 
 	badIcon = $('<i class="fa fa-times-circle"></i> ');
 
+function populateActiveTotals() {
+	$('span.live-count').each(function() {
+		var tmp = this;
+		$.getJSON('/api/presentation/active/'+tmp.dataset.id, function(data) {
+			if (data.count)
+				$('#'+tmp.dataset.id).text(', ' + data.count + ' active sessions');
+		});
+	});
+}
+
 $(document).ready(function() {
 	$('#newPresentationButton').click(function(e) { $('#newDiv').removeClass('hidden').addClass('show'); });
 	$('#checkUriButton').click(function(e) {
@@ -23,4 +33,6 @@ $(document).ready(function() {
 	$('.fa-turnon-icon').click(function() {
 		return confirm("Confirm that you want to start this session");
 	});
+
+	populateActiveTotals();
 });

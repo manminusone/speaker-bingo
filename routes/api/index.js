@@ -227,5 +227,41 @@ module.exports = (options) => {
 		}
 	);
 
+	router.get('/presentation/active/:id',
+		isLoggedIn,
+		isAdmin,
+		function(req,res,next) {
+			var Presentation = req.db.Presentation, Bingo= req.db.Bingo, Audit = req.db.Audit;
+
+			Presentation.findById(req.params.id)
+				.populate({
+					'path': 'bingo',
+					'populate': {
+						'path': 'audit'
+					}
+				})
+				.exec(function(err,p) {
+					if (err) { 
+						res.json({'error': err })
+					} else if (! p) {
+						res.json({'error': 'Presentation not found'})
+					} else {
+						var foo = 0;
+						if (p.prop && p.prop.active && p.prop.active.id) {
+							for (var n = 0; n < p.bingo.length; ++n) {
+								if (p.prop.active.id == p.bingo[n]._id) {
+									for (var m = 0; m < p.bingo[n].audit.length; ++m) {
+										if (p.bingo[n].audit[m].key == 'GAMESTART' && new Date(p.bingo[n].audit[m].timestamp).getTime() >= new Date(p.prop.active.start).getTime())
+											++foo;
+									}
+								}
+							}
+						}
+						res.json({'count': foo});
+					}
+				});
+		}
+	);
+
 	return router;
 };
