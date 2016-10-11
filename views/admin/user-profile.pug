@@ -70,7 +70,7 @@ block content
                   td
                     - for (var i2 = 0; i2 < user.presentation[iter].bingo.length; ++i2) {
                       - var thisitem = user.presentation[iter].bingo[i2];
-                      div(class="bingoDiv")
+                      div(class=(thisitem._id == user.presentation[iter].prop.active.id ? 'bingoDiv bingoActiveDiv' : 'bingoDiv'))
                         p #{thisitem.title}  
                           small #{thisitem.choices.length} items
                           span(class="pull-right")

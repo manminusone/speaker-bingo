@@ -3,6 +3,7 @@
 .nice-table input { color: #000; }
 
 .presentationDiv { width: 80%; background: #eef; color: #003; border: 3px solid black; padding: 8px;  }
+.bingoActiveDiv { background: #390 !important; }
 .bingoDiv { background: #669; color: #fff; padding: 4px 8px 4px 8px; border: 3px solid #99f; font-size: 200%; font-weight: bold; border-radius: 8px; margin-bottom: 16px; }
 .bingoDiv small { font-size: 50%; font-style: oblique; }
 
