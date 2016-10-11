@@ -40,3 +40,4 @@ p.bingoEditItem { width: 80%; padding: 4px; background: #333; color:#FFF; font-s
 .activeTest { color:#000; }
 .inactiveTest { color:#ccc; }
 
+.fa-red-icon { color: red; }

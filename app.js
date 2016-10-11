@@ -83,12 +83,16 @@ var apiRoutes = require('./routes/api/index')({ 'config': config });
 adminApp.use('/', adminRoutes);
 adminApp.use('/api', apiRoutes);
 
-// catch 404 and forward to error handler
-adminApp.use(function(req, res, next) {
+// catch 404 
+var dev404 = function(req,res,next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
-});
+}, prod404 = function(req,res,next) {
+  res.render('404', { 'config': config });
+};
+
+adminApp.use(process.env.NODE_ENV === 'production' ? prod404 : dev404);
 
 // error handlers
 
@@ -146,12 +150,10 @@ mobileApp.use(session({
 
 mobileApp.use('/', mobileRoutes);
 
-// catch 404 and forward to error handler
-mobileApp.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+
+// catch 404
+mobileApp.use(process.env.NODE_ENV === 'production' ? prod404 : dev404);
+
 
 // error handlers
 
