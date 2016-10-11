@@ -7,7 +7,7 @@ function populateActiveTotals() {
 	$('span.live-count').each(function() {
 		var tmp = this;
 		$.getJSON('/api/presentation/active/'+tmp.dataset.id, function(data) {
-			if (data.count)
+			if (! data.error)
 				$('#'+tmp.dataset.id).text(', ' + data.count + ' active sessions');
 		});
 	});
