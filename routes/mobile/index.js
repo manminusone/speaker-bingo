@@ -6,15 +6,20 @@ module.exports = (options) => {
 	var express = require('express');
 	var router = express.Router();
 	var config = options.config;
+	var adminUrl = (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '');
 
 	router.get('/', function(req,res,next) {
-		res.render('index', { title: 'URI hell', message: ''});
+		res.redirect(adminUrl);
 	});
 
 	router.get('/:uri', function(req,res,next) {
 		var User = req.db.User, Presentation = req.db.Presentation, Bingo = req.db.Bingo, Audit = req.db.Audit;
 
-		// console.log(JSON.stringify(req.session));
+		console.log('get /:uri');
+		if (req.params.uri == '')
+			res.redirect(adminUrl);
+
+		console.log(JSON.stringify(req.session));
 		Presentation.findOne(
 		 { 'uri': req.params.uri }, 
 		 function(err,presentation) {
