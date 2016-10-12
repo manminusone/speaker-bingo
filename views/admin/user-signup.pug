@@ -3,12 +3,14 @@ extends layout
 block content
   script(src="/javascripts/signup.js")
   div(class="container")
-    i(class="fa fa-user fa-5x fa-pull-right")
+    i(class="fa fa-user-plus fa-5x fa-pull-right")
     h1 Sign up
 
     p Before you can start creating your bingo cards, please create a user account. If your email is already in our system and you've forgotten your password, don't fret: you can 
       a(href="/pwdreset") send yourself an email 
       | to get your password reset.
+    p Already created an account?  
+      a(href="/login") Login here. 
 
     - if (message)
       div(class="alert alert-danger alert-dismissible" role="alert")
@@ -21,13 +23,15 @@ block content
     form(method="post")
         table
             tr
-                th Your email
+                th Your email address &nbsp;
                 td
-                    input(type="text" id="email" name="email" value=email)
+                    input(type="email" class="form-control" id="email" name="email" value=email placeholder="email@address.here")
             tr
-                th Password
+                th Password &nbsp; 
                 td
-                    input(type="password" id="pwd" name="pwd")
+                    input(type="password" class="form-control" id="pwd" name="pwd" placeholder="password")
+            tr
+                td(colspan="2")  &nbsp; 
             tr
                 th Ready?
                 td
