@@ -125,7 +125,7 @@ app.use(vhost(config.vhost.adminDomain, adminApp));
 // --- mobile site setup ---
 
 // view engine setup
-mobileApp.set('views', path.join(__dirname, 'views/uri'));
+mobileApp.set('views', path.join(__dirname, 'views/mobile'));
 mobileApp.set('view engine', 'pug');
 
 var mobileRoutes = require('./routes/mobile/index')({ 'config': config });
