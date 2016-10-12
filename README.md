@@ -10,7 +10,7 @@ This site is running at http://speaker.bingo/ so please refer to that site for f
 ```
 git clone git@github.com:manminusone/speaker-bingo.git
 cd speaker-bingo/
-cp config.sampls.js config.js
+cp config.sample.js config.js
 
 # edit your config.js and supply appropriate values
 
