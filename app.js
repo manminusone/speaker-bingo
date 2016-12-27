@@ -18,7 +18,8 @@ var config = require('./config');
 var log = bunyan.createLogger({
 	'name': 'speaker-bingo',
 	'req' : bunyan.stdSerializers.req,
-	'res' : bunyan.stdSerializers.res
+	'res' : bunyan.stdSerializers.res,
+  level : 'DEBUG'
 });
 config.log = log;
 
@@ -53,10 +54,10 @@ app.use(function(req,res,next) {
 // view engine setup
 adminApp.set('views', path.join(__dirname, 'views/admin'));
 adminApp.set('view engine', 'pug');
-// console.log('setting up mailer - ' + JSON.stringify( config.mailer));
+
 mailer.extend(adminApp, config.mailer);
 
-var adminRoutes = require('./routes/admin/index')({ 'config': config });
+var adminRoutes = require('./routes/admin')({ 'config': config });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

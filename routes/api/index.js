@@ -4,7 +4,6 @@ module.exports = (options) => {
 	var config = options.config;
 
 	var mongoose = require('mongoose');
-	var Schema = mongoose.Schema;
 
 	var isLoggedIn = function(req,res,next) {
 		var User = req.db.User;
@@ -27,13 +26,13 @@ module.exports = (options) => {
 	router.get('/uri/:uri', function(req,res,next) {
 		var Presentation = req.db.Presentation;
 		Presentation.findOne({ uri : req.params.uri }, function(err,doc) {
-			// console.log('err = ' + err+ ', doc = ' + doc);
-			if (doc)
-				res.json({ uri: req.params.uri, exists: true});
-			else
-				res.json({ uri: req.params.uri, exists: false });
+			res.json({ uri: req.params.uri, exists: (doc != null) });
 		})
 	});
+
+
+//	API functions for admin pages from here on out
+
 	router.post('/user/list', 
 		isLoggedIn,
 		isAdmin,

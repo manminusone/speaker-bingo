@@ -16,6 +16,7 @@ module.exports = (options) => {
 	var Schema = mongoose.Schema;
 
 	var isLoggedIn = function(req,res,next) {
+		log.debug('entering isLoggedIn');
 		var User = req.db.User;
 		if (req.session.userId) {
 			User.findById(req.session.userId)
@@ -35,6 +36,7 @@ module.exports = (options) => {
 	};
 
 	var isLocked = function(req,res,next) {
+		log.debug('entering isLocked');
 		if (req.session.user && req.session.user.prop && req.session.user.prop.lock)
 			res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account locked', 'message': 'Your account was created, but has been locked due to unusual activity. Please contact the admins for further information. Thanks.'})
 		else
@@ -42,6 +44,7 @@ module.exports = (options) => {
 
 	};
 	var isAdmin = function(req,res,next) {
+		log.debug('entering isAdmin');
 		if (req.session.user && req.session.user.prop && req.session.user.prop['admin'])
 			next();
 		else
@@ -96,7 +99,8 @@ module.exports = (options) => {
 							u.hash = hash;
 							u.save(function(err,updatedUser,numAffected) {
 								if (err) {
-									res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
+									log.error("Error saving User record: " + err);
+									res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: "Your account was not saved successfully. The admins have been alerted.", email: req.body.email, config: config });
 								} else if (config.confirmByEmail) {
 									req.app.mailer.send('email/activation',
 										{
@@ -196,10 +200,12 @@ module.exports = (options) => {
 						doc.markModified('prop');
 						doc.save(function(err,savedDoc) {
 							req.session.userId = savedDoc._id;
-							res.redirect('/profile');						
+							req.session.save(function() { // explicitly save req.session to confirm the userId is in memory
+								res.redirect('/profile');
+							});
 						})
 					} else
-						res.render('user-login', {  'tabChoice': 'account', title: 'Login', message: err || 'Account not found', config: config, email: req.body.email });
+						res.render('user-login', {  'tabChoice': 'account', title: 'Login', message: 'Account not found', config: config, email: req.body.email });
 				});
 		});
 	});
@@ -262,8 +268,10 @@ module.exports = (options) => {
 					doc.title = req.body.bingoTitle;
 					doc.choices = choices;
 					doc.save(function(err,newdoc) {
+						if (err)
+							log.error("Error saving existing Bingo record: " + err);
 						res.render('bingo-edit', { 
-							message: (err || 'Saved successfully'), 
+							message: (err ? 'Record was not saved! The admins have been alerted.' : 'Saved successfully'), 
 							user: u,
 							bingo: newdoc,
 							config: config });
@@ -275,10 +283,12 @@ module.exports = (options) => {
 					'title': req.body.bingoTitle,
 					'choices': choices
 				}).save(function(err,newBingo) {
+					if (err)
+						log.error("Error saving new Bingo record: " + err);
 					u.presentation[pid].bingo.push(newBingo._id);
 					u.presentation[pid].save(function(err,newdoc) {
 						res.render('bingo-edit', {
-							message: (err || 'Saved successfully'),
+							message: (err ? "Record was not saved! The admins have been alerted." : 'Saved successfully'),
 							user: u,
 							bingo: newBingo,
 							config: config

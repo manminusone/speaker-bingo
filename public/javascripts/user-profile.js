@@ -34,5 +34,18 @@ $(document).ready(function() {
 		return confirm("Confirm that you want to start this session");
 	});
 
+	$('.btn-edit').click(function(e) {
+		var ds = e.target.dataset;
+		window.location = '/bingo/edit?q='+ds.itemId;
+	});
+	$('.btn-on-test').click(function(e) {
+		var ds = e.target.dataset;
+		window.location = '/bingo/test?q='+ds.itemId;
+	});
+	$('.btn-off-test').click(function(e) {
+		var ds = e.target.dataset;
+		window.location='/bingo/test/off?q='+ds.upiId;
+	})
+
 	populateActiveTotals();
 });
