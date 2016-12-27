@@ -52,78 +52,80 @@ block content
                         th Status
                         td
                           - var labelValue = "Inactive", labelStyle="label-default";
-                          - if (upi.prop.active)
-                          -   if (upi.prop.active.id) {
+                          - if (upi.prop.active && upi.prop.active.id) {
                           -     labelValue = "Active"; labelStyle = "label-success";
-                          -   }
-                          - if (upi.prop.test)
-                          -    if (upi.prop.test.id) {
+                          - }
+                          - if (upi.prop.test && upi.prop.test.id) {
                           -      labelValue = "Testing"; labelStyle="label-info";
-                          -    }
+                          - }
                           span(class="label " + labelStyle)= labelValue
                       tr
                         th Last tested on
                         td
-                          - if (upi.prop.test.start)
+                          - if (upi.prop.test && upi.prop.test.start)
                             date(class="niceDate")= upi.prop.test.start
                           - else 
                             | --
                       tr
                         th Last went live on 
                         td
-                          - if (upi.prop.active.start)
+                          - if (upi.prop.active && upi.prop.active.start)
                             date(class="niceDate")= upi.prop.active.start 
                           - else
                             | --
 
                   td
-                    h2 Cards for this URI
-                    - for (var i2 = 0; i2 < user.presentation[iter].bingo.length; ++i2) {
-                      - var thisitem = upi.bingo[i2];
-                      - var thisstyle = thisitem._id == upi.prop.active.id ? 'btn-success' : thisitem._id == upi.prop.test.id ? 'btn-info' : thisitem.choices.length >= 24 ? 'btn-default' : 'btn-default';
-                      - var actionstyle = thisitem._id == upi.prop.active.id ? 'btn-off-active' : thisitem._id == upi.prop.test.id ? 'btn-off-test' : thisitem.choices.length >= 24 ? 'btn-on-test' : 'btn-edit';
-                      div(style="padding-bottom: 12px")
-                        div(class="btn-group")
-                          button(type="button" data-item-id=thisitem._id data-upi-id=upi._id class='btn '+thisstyle+' '+actionstyle) #{thisitem.title + ' (' + thisitem.choices.length + ')'}
-                          button(type="button" class='btn dropdown-toggle '+thisstyle data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-                            span(class="caret")
-                            span(class="sr-only") Toggle Dropdown
-                          ul(class="dropdown-menu")
-                            li(class=(upi.prop.active && thisitem._id == upi.prop.active.id ? 'disabled' : ''))
-                              a(href="/bingo/edit?q="+thisitem._id) 
-                                i(class="fa fa-edit") 
-                                |  Edit
-                            - if (upi.prop.test && thisitem._id == upi.prop.test.id) {
-                              li
-                                a(href="/bingo/test/off?q="+upi._id) 
-                                  span(class="fa-stack")
-                                    i(class="fa fa-list fa-stack-1x")
-                                    i(class="fa fa-ban text-danger fa-stack-2x")
-                                  |  Stop testing
-                            - } else if (thisitem.choices.length >= 24) {
-                              li
-                                a(href="/bingo/test?q="+thisitem._id) 
-                                  i(class="fa fa-list")
-                                  |  Start testing
-                            - }
-                            - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
-                              li
-                                a(href="/bingo/activate/off?q="+user.presentation[iter]._id) 
-                                  span(class="fa-stack")
-                                    i(class="fa fa-rocket fa-stack-1x")
-                                    i(class="fa fa-ban text-danger fa-stack-2x")
-                                  |  Stop game
-                            - } else if (thisitem.choices.length >= 24) {
-                              li
-                                a(href="/bingo/activate?q="+thisitem._id) 
-                                  i(class="fa fa-rocket")
-                                  |  Start game
-                            - }
-                            li 
-                              a(href="#") 
-                                i(class="fa fa-trash")
-                                |  Delete 
-                    - }
+                    - if (user.presentation[iter].bingo.length == 0)
+                      div(style="border: 3px solid #336; padding: 10px; border-radius: 8px; width: 50%; margin-top: 12px; margin-bottom: 10px; ") No cards created yet. 
+                    - else 
+                      h2 Cards for this URI
+                      - for (var i2 = 0; i2 < user.presentation[iter].bingo.length; ++i2) {
+                        - var thisitem = upi.bingo[i2];
+                        - var thisstyle = (upi.prop.active && upi.prop.active.id && thisitem._id == upi.prop.active.id ? 'btn-success' : upi.prop.test && thisitem._id == upi.prop.test.id ? 'btn-info' : thisitem.choices.length >= 24 ? 'btn-default' : 'btn-default');
+                        - var actionstyle = upi.prop.active && thisitem._id == upi.prop.active.id ? 'btn-off-active' : upi.prop.test && thisitem._id == upi.prop.test.id ? 'btn-off-test' : thisitem.choices.length >= 24 ? 'btn-on-test' : 'btn-edit';
+                        div(style="padding-bottom: 12px")
+                          div(class="btn-group")
+                            button(type="button" data-item-id=thisitem._id data-upi-id=upi._id class='btn '+thisstyle+' '+actionstyle) #{thisitem.title + ' (' + thisitem.choices.length + ')'}
+                            button(type="button" class='btn dropdown-toggle '+thisstyle data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+                              span(class="caret")
+                              span(class="sr-only") Toggle Dropdown
+                            ul(class="dropdown-menu")
+                              li(class=(upi.prop.active && thisitem._id == upi.prop.active.id ? 'disabled' : ''))
+                                a(href="/bingo/edit?q="+thisitem._id) 
+                                  i(class="fa fa-edit") 
+                                  |  Edit
+                              - if (upi.prop.test && thisitem._id == upi.prop.test.id) {
+                                li
+                                  a(href="/bingo/test/off?q="+upi._id) 
+                                    span(class="fa-stack")
+                                      i(class="fa fa-list fa-stack-1x")
+                                      i(class="fa fa-ban text-danger fa-stack-2x")
+                                    |  Stop testing
+                              - } else if (thisitem.choices.length >= 24) {
+                                li
+                                  a(href="/bingo/test?q="+thisitem._id) 
+                                    i(class="fa fa-list")
+                                    |  Start testing
+                              - }
+                              - if (user.presentation[iter].prop.active && thisitem._id == user.presentation[iter].prop.active.id) {
+                                li
+                                  a(href="/bingo/activate/off?q="+user.presentation[iter]._id) 
+                                    span(class="fa-stack")
+                                      i(class="fa fa-rocket fa-stack-1x")
+                                      i(class="fa fa-ban text-danger fa-stack-2x")
+                                    |  Stop game
+                              - } else if (thisitem.choices.length >= 24) {
+                                li
+                                  a(href="/bingo/activate?q="+thisitem._id) 
+                                    i(class="fa fa-rocket")
+                                    |  Start game
+                              - }
+                              li 
+                                a(href="#") 
+                                  i(class="fa fa-trash")
+                                  |  Delete 
+                      - } // end of for loop
+
                     a(href="/bingo/"+iter+'/new' class="btn btn-primary") 
                       i(class="fa fa-plus-circle")
                       |  Add new card

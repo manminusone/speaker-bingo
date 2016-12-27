@@ -193,9 +193,12 @@ module.exports = (options) => {
 	router.post('/login', function(req,res,next) {
 		var User = req.db.User;
 		User.findOne({ 'email': req.body.email}).exec(function(err,doc) {
+			log.info("finding user. doc = " + JSON.stringify(doc));
 			if (doc) 
 				bcrypt.compare(req.body.pwd, doc.hash, function(err,okay) {
 					if (okay) {
+						if (! doc.prop)
+							doc.prop = {};
 						doc.prop['login'] = Date.now();
 						doc.markModified('prop');
 						doc.save(function(err,savedDoc) {
