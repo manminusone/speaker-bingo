@@ -219,7 +219,7 @@ module.exports = (options) => {
 		function(req,res,next) {
 			console.log(JSON.stringify(req.session.user.presentation[0]));
 
-			res.render('user-profile', { 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
+			res.render('user-profile', { 'title': 'User Profile', 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
 	);
 
@@ -274,6 +274,7 @@ module.exports = (options) => {
 						if (err)
 							log.error("Error saving existing Bingo record: " + err);
 						res.render('bingo-edit', { 
+							title: 'Edit card',
 							message: (err ? 'Record was not saved! The admins have been alerted.' : 'Saved successfully'), 
 							user: u,
 							bingo: newdoc,
@@ -291,6 +292,7 @@ module.exports = (options) => {
 					u.presentation[pid].bingo.push(newBingo._id);
 					u.presentation[pid].save(function(err,newdoc) {
 						res.render('bingo-edit', {
+							title: 'Edit card',
 							message: (err ? "Record was not saved! The admins have been alerted." : 'Saved successfully'),
 							user: u,
 							bingo: newBingo,
@@ -313,6 +315,7 @@ module.exports = (options) => {
 					for (var j = 0; j < u.presentation[i].bingo.length; ++j) {
 						if (u.presentation[i].bingo[j]._id == req.query.q) {
 							res.render('bingo-edit', {
+								title: 'Edit card',
 								message: '',
 								user: u,
 								bingo: u.presentation[i].bingo[j],

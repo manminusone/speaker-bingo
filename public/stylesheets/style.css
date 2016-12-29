@@ -41,3 +41,5 @@ p.bingoEditItem { width: 80%; padding: 4px; background: #333; color:#FFF; font-s
 .inactiveTest { color:#ccc; }
 
 .fa-red-icon { color: red; }
+
+.fa-my-icon { font-size: 10em; color: #ccc }
