@@ -148,7 +148,7 @@ module.exports = (options) => {
 										'to': product.email,
 										'from': config.mailer.from,
 										'subject': 'Speaker Bingo - activation',
-										'activation': ac,
+										'hash': product.prop.authHash,
 										'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
 									},
 									function(err) {
@@ -180,7 +180,8 @@ module.exports = (options) => {
 					})
 				}
 			})
-		}
+		} else
+			res.redirect('/');
 	});
 
 	// log in/out
@@ -222,6 +223,61 @@ module.exports = (options) => {
 			res.render('user-profile', { 'title': 'User Profile', 'tabChoice': 'profile', config: config, user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 		}
 	);
+	router.post('/profile/save',
+		isLoggedIn,
+		isLocked,
+		function(req,res,next) {
+			if (req.body.email != req.session.user.email) {  // email changed
+				var User = req.db.User;
+				User.findById(req.session.user._id, function(err,u) {
+					if (u) {
+						var millis = new Date().getMilliseconds();
+						u.prop.emailHash = md5(u.email + ' ' + millis.toString());
+						u.prop.newEmail = req.body.email;
+						u.markModified('prop');
+						u.save(function(err) {
+							req.app.mailer.send('email/change',
+								{
+									'to': req.body.email,
+									'from': config.mailer.from,
+									'subject': 'Speaker Bingo - email change',
+									'hash': u.prop.emailHash,
+									'siteUrl': (config.port == 443 ? 'https://' : 'http://') + config.vhost.adminDomain + (config.port != 443 & config.port != 80 ? ':' + config.port : '') 
+								},
+								function(err) {
+									if (err) {
+										log.info(err);
+										res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+									}
+									res.render('message', { 'tabChoice': account, 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+								}
+							);
+						});
+
+
+					}
+				})
+			}
+		}
+	);
+	router.get('/profile/email',
+		isLoggedIn, // @@@
+		isLocked,
+		var User = req.db.User;
+		if (req.query.q) {
+			User.findOne({'_id': req.session.user._id, 'prop.emailHash': req.query.q}).exec(function(err,u) {
+				if (u) {
+					u.prop.authHash = null;
+					u.prop.authenticated = true;
+					u.markModified('prop');
+					u.save(function(err,newU) {
+						res.render('message', { 'tabChoice': 'account', 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
+					})
+				}
+			})
+		} else
+			res.redirect('/');
+		)
 
 	router.post('/presentation/new', 
 		isLoggedIn,
@@ -231,7 +287,7 @@ module.exports = (options) => {
 
 			Presentation.findOne({ uri: req.body.uri }).exec(function(err,doc) {
 				if (doc) {
-					res.render('user-profile', { 'tabChoice': 'profile', config: config, message: 'Your URI choice already exists. Try again.', user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
+					res.render('user-profile', { 'title': 'User Profile', 'tabChoice': 'profile', config: config, message: 'Your URI choice already exists. Try again.', user: req.session.user, gravatar: gravatar.url(req.session.user.email) });
 				} else {
 					Presentation({ uri: req.body.uri, prop: { 'created': new Date() } })
 					.save(function(err,newP) {

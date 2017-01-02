@@ -8,21 +8,29 @@ block content
     div(class="screenAdmin")
       h1 User profile
 
-      table
-        tr
-          th Email
-          td= user.email 
-            
-        tr
-          th Full name
-          td
-            input(type="text" id="name" name="name" value=user.name)
-        tr
-          th Save
-          td
-            button(type="button" id="saveButton")
-              i(class="fa fa-save") 
-              |  Save
+      form(method="post" action="/profile/update")
+        table
+          tr
+            th Email&nbsp;
+            td
+              input(type="email" class="form-control" id="userEmail" placeholder="Email address" size="30" length="255" value=user.email)
+              br
+          tr
+            th Change your password?
+            td
+              input(type="password" class="form-control" id="pw1" placeholder="New password" size="30" length="255")
+              br
+          tr
+            td
+            td
+              input(type="password" class="form-control" id="pw2" placeholder="Type it again" size="30" length="255")
+              br 
+          tr
+            td
+            td
+              button(class="btn btn-primary" type="submit")
+                i(class="fa fa-save")
+                |  Save changes
 
       - if (message) {
         div(class="alert alert-danger alert-dismissable")= message
