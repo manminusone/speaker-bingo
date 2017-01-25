@@ -1,6 +1,8 @@
 module.exports = (options) => {
 	var config = options.config;
 	var log = config.log;
+	var express = require('express');
+	var router = express.Router();
 //	static pages
 	router.get('/static/about', function(req,res,next) {
 		res.render('about', { title: 'About this site', tabChoice: 'about', config: config, 'user': req.session.user });

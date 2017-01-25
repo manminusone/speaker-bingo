@@ -6,7 +6,8 @@ module.exports = (options) => {
 	var util = require('./util');
 	var gravatar = require('gravatar');
 
-	var util = require('./util');
+	var util = require('./util')(options);
+	console.log(util);
 
 
 	var router = express.Router();
@@ -106,8 +107,9 @@ module.exports = (options) => {
 					});
 				else
 					res.redirect('/');
+			}
 		}
-	});
+	);
 	router.get('/activate', function(req,res,next) {
 		var User = req.db.User;
 		if (req.query.q) {
@@ -204,20 +206,22 @@ module.exports = (options) => {
 	router.get('/profile/email',
 		util.isLoggedIn, // @@@
 		util.isLocked,
-		var User = req.db.User;
-		if (req.query.q) {
-			User.findOne({'_id': req.session.user._id, 'prop.emailHash': req.query.q}).exec(function(err,u) {
-				if (u) {
-					u.prop.authHash = null;
-					u.prop.authenticated = true;
-					u.markModified('prop');
-					u.save(function(err,newU) {
-						res.render('message', { 'tabChoice': 'account', 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
-					})
-				}
-			})
-		} else
-			res.redirect('/');
+		function (req,res,next) {
+			var User = req.db.User;
+			if (req.query.q) {
+				User.findOne({'_id': req.session.user._id, 'prop.emailHash': req.query.q}).exec(function(err,u) {
+					if (u) {
+						u.prop.authHash = null;
+						u.prop.authenticated = true;
+						u.markModified('prop');
+						u.save(function(err,newU) {
+							res.render('message', { 'tabChoice': 'account', 'config': config, 'title': (err ? err : 'Success'), 'message' : (err ? 'This operation did not work: ' + err : 'You are good to go! Head over to the login page.') });
+						})
+					}
+				})
+			} else
+				res.redirect('/');
+		}
 	);
 	return router;
 

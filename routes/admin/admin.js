@@ -4,7 +4,7 @@ module.exports = (options) => {
 	var express = require('express');
 	var router = express.Router();
 
-	var util = require('./util');
+	var util = require('./util')(options);
 
 	// admin
 	router.get('/admin', 

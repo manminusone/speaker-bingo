@@ -6,7 +6,7 @@ module.exports = (options) => {
 	var express = require('express');
 	var gravatar = require('gravatar');
 
-	var util = require('./util');
+	var util = require('./util')(options);
 
 
 	var router = express.Router();
