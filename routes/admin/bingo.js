@@ -1,16 +1,11 @@
 // admin site routes
 
-module.exports = (options) => {
+module.exports = (options,router) => {
 	var config = options.config;
 	var log = config.log;
-	var express = require('express');
 	var gravatar = require('gravatar');
 
 	var util = require('./util')(options);
-
-
-	var router = express.Router();
-
 
 	router.post('/presentation/new', 
 		util.isLoggedIn,

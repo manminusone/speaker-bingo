@@ -1,17 +1,11 @@
-module.exports = (options) => {
+module.exports = (options,router) => {
 	var config = options.config;
 	var log = config.log;
 
-	var express = require('express');
 	var util = require('./util');
 	var gravatar = require('gravatar');
-
 	var util = require('./util')(options);
-	console.log(util);
-
-
-	var router = express.Router();
-
+	var bcrypt = require('bcrypt');
 	var mongoose = require('mongoose');
 	var Schema = mongoose.Schema;
 
@@ -190,9 +184,9 @@ module.exports = (options) => {
 								function(err) {
 									if (err) {
 										log.info(err);
-										res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your account was created, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
+										res.render('message', { 'tabChoice': 'account', 'config': config, 'title': 'Account created', 'message': 'Your email was changed, but your authentication email may have failed to be sent. If you do not receive the authtorization email, please click on the re-send link on the login page. Thanks!'})
 									}
-									res.render('message', { 'tabChoice': account, 'config': config, 'title': 'Account created', 'message': "Thank you for signing up. Check your email for an authentication message." });
+									res.render('message', { 'tabChoice': account, 'config': config, 'title': 'Account created', 'message': "Your email address has been changed. Check your email for an authentication message." });
 								}
 							);
 						});
@@ -203,8 +197,8 @@ module.exports = (options) => {
 			}
 		}
 	);
-	router.get('/profile/email',
-		util.isLoggedIn, // @@@
+	router.get('/profile/email', // for verifying an email address change
+		util.isLoggedIn,
 		util.isLocked,
 		function (req,res,next) {
 			var User = req.db.User;

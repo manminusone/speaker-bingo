@@ -1,8 +1,6 @@
-module.exports = (options) => {
+module.exports = (options,router) => {
 	var config = options.config;
 	var log = config.log;
-	var express = require('express');
-	var router = express.Router();
 
 	var util = require('./util')(options);
 

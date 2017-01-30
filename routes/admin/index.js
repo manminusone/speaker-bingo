@@ -13,10 +13,10 @@ module.exports = (options) => {
 	var mongoose = require('mongoose');
 	var Schema = mongoose.Schema;
 
-	var  userRoutes = require('./user')(options); // load up user admin routes
-	var adminRoutes = require('./admin')(options); // admin screens
-	var bingoRoutes = require('./bingo')(options);
-	var staticRoutes = require('./static')(options);
+	router = require('./user')(options,router); // load up user admin routes
+	router = require('./admin')(options,router); // admin screens
+	router = require('./bingo')(options,router);
+	router = require('./static')(options,router);
 
 	// home page
 	router.get('/', function(req, res, next) {
