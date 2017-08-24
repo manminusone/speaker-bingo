@@ -37,6 +37,7 @@ module.exports = (options) => {
 									if (err) {
 										res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: err, email: req.body.email, config: config });
 									} else if (config.confirmByEmail) {
+										// TODO - change this
 										req.app.mailer.send('email/activation',
 											{
 												'to': updatedUser.email,
@@ -75,6 +76,7 @@ module.exports = (options) => {
 							product.prop.authHash = md5(product.email + ' ' + millis.toString());
 							product.markModified('prop');
 							product.save(function(err) {
+								// TODO - change this
 								req.app.mailer.send('email/activation',
 									{
 										'to': product.email,

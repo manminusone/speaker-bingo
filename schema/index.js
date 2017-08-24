@@ -27,3 +27,10 @@ exports.AuditSchema = new Schema({
 	key: String,
 	value: String
 });
+exports.EmailTaskSchema = new Schema({
+	template: String,
+	email: String,
+	subject: String,
+	param: {}
+
+});

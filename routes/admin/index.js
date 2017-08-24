@@ -102,6 +102,7 @@ module.exports = (options) => {
 									log.error("Error saving User record: " + err);
 									res.render('user-signup', { tabChoice: 'account', title: 'Sign up', message: "Your account was not saved successfully. The admins have been alerted.", email: req.body.email, config: config });
 								} else if (config.confirmByEmail) {
+									// TODO - change this into an agenda call
 									req.app.mailer.send('email/activation',
 										{
 											'to': updatedUser.email,
@@ -143,6 +144,7 @@ module.exports = (options) => {
 							product.prop.authHash = md5(product.email + ' ' + millis.toString());
 							product.markModified('prop');
 							product.save(function(err) {
+								// TODO - update this
 								req.app.mailer.send('email/activation',
 									{
 										'to': product.email,
@@ -236,6 +238,7 @@ module.exports = (options) => {
 						u.prop.newEmail = req.body.email;
 						u.markModified('prop');
 						u.save(function(err) {
+							// TODO - update this
 							req.app.mailer.send('email/change',
 								{
 									'to': req.body.email,
@@ -536,6 +539,7 @@ module.exports = (options) => {
 		res.render('contact', { title: 'Contact us', tabChoice: 'contact', config: config, 'user': req.session.user });
 	});
 	router.post('/static/contact', function(req,res,next) {
+		// TODO - update this
 		req.app.mailer.send('email-contact', {
 			to: config.contactAddress,
 			subject: '[Speaker Bingo] ' + req.body.subject,

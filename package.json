@@ -6,6 +6,7 @@
     "start": "node ./node_modules/nodemon/bin/nodemon.js ./bin/www"
   },
   "dependencies": {
+    "agenda": "^1.0.0",
     "bcrypt": "^0.8.7",
     "bluebird": "^3.4.1",
     "body-parser": "~1.15.1",

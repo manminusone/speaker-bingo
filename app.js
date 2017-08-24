@@ -188,4 +188,22 @@ app.use(vhost('*', function(req,res) {
   res.send('generic domain received');
 }));
 
+// set up email job via agenda
+
+var mailer = require('./routes/lib/mail')({ "config": config });
+var agenda = new Agenda({ db: { address: config.mongodb.uri }});
+
+agenda.define('send mail', function(job,done) {
+  mailer.process(done);
+});
+
+agenda.on('ready', function() {
+  agenda.every('1 minute', 'send mail');
+  agenda.start();
+});
+
+
+
+// 
 module.exports = app;
+// end 
